@@ -1,0 +1,76 @@
+# ========================
+# Environment & Secrets
+# ========================
+.env
+.env.local
+.env.*.local
+
+# ========================
+# Node / Frontend
+# ========================
+node_modules/
+.next/
+out/
+dist/
+.turbo/
+*.tsbuildinfo
+
+# ========================
+# Python / Backend / AI
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+venv/
+.venv/
+env/
+.conda/
+*.whl
+
+# ========================
+# AI Model Artifacts
+# ========================
+ai/model/checkpoints/
+ai/data/raw/
+ai/data/processed/
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.onnx
+*.gguf
+tokenizer.model
+wandb/
+
+# ========================
+# Docker
+# ========================
+*.log
+docker-compose.override.yml
+
+# ========================
+# OS Files
+# ========================
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ========================
+# IDE
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ========================
+# Testing / Coverage
+# ========================
+coverage/
+htmlcov/
+.coverage
+.pytest_cache/
+.nyc_output/

@@ -1,0 +1,51 @@
+# See https://pre-commit.com for more information
+repos:
+  # ---- Frontend: ESLint + Prettier ----
+  - repo: local
+    hooks:
+      - id: eslint
+        name: ESLint (Frontend)
+        entry: npx --prefix frontend eslint --fix
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|jsx)$
+        pass_filenames: true
+
+      - id: prettier
+        name: Prettier (Frontend)
+        entry: npx --prefix frontend prettier --write
+        language: system
+        files: ^frontend/.*\.(ts|tsx|js|jsx|scss|css|json|md)$
+        pass_filenames: true
+
+  # ---- Backend: Ruff + Black ----
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4
+    hooks:
+      - id: ruff
+        name: Ruff Linter (Python)
+        args: [--fix]
+        files: ^(backend|ai)/
+
+      - id: ruff-format
+        name: Ruff Formatter (Python)
+        files: ^(backend|ai)/
+
+  # ---- Commit Messages: Commitlint ----
+  - repo: local
+    hooks:
+      - id: commitlint
+        name: Commitlint
+        entry: npx commitlint --edit
+        language: system
+        stages: [commit-msg]
+
+  # ---- General ----
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=5000']
