@@ -1,0 +1,52 @@
+@import '../../../styles/mixins';
+
+.inputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.input {
+  @include glassmorphism(rgba(15, 17, 26, 0.7), 8px, var(--color-border));
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  
+  &::placeholder {
+    color: var(--color-text-muted);
+  }
+  
+  &:focus {
+    @include focus-glow(var(--color-primary));
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  &.hasError {
+    @include focus-glow(var(--color-danger));
+  }
+}
+
+.textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.error {
+  font-size: 0.75rem;
+  color: var(--color-danger);
+}

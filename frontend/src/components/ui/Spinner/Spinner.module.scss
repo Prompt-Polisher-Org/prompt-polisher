@@ -1,0 +1,23 @@
+@import '../../../styles/animations';
+
+.spinner {
+  display: inline-block;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--color-primary);
+  animation: spin 1s ease-in-out infinite;
+  
+  &.sm { width: 16px; height: 16px; border-width: 2px; }
+  &.md { width: 24px; height: 24px; }
+  &.lg { width: 32px; height: 32px; border-width: 4px; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.skeleton {
+  @include animate-shimmer();
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-surface-elevated);
+}
