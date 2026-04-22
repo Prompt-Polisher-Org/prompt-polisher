@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL - For structured user data and auth
+  postgres:
+    image: postgres:16-alpine
+    container_name: prompt_polisher_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: prompt_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - prompt-network
+    restart: unless-stopped
+
+  # 2. Redis - For fast semantic caching and Kafka/Queue logic
+  redis:
+    image: redis:7-alpine
+    container_name: prompt_polisher_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - prompt-network
+    restart: unless-stopped
+
+  # 3. Qdrant - The Vector Database for your AI Prompts (RAG)
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: prompt_polisher_qdrant
+    ports:
+      - "6333:6333" # REST API
+      - "6334:6334" # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - prompt-network
+    restart: unless-stopped
+  # 4. FastAPI Backend (Commented out until code is written)
+  # backend:
+  #   build: ./backend
+  #   container_name: prompt_polisher_api
+  #   ports:
+  #     - "8000:8000"
+  #   env_file: .env
+  #   depends_on:
+  #     - postgres
+  #     - redis
+  #     - qdrant
+  #   networks:
+  #     - prompt-network
+
+  # 5. Next.js Frontend (Commented out until code is written)
+  # frontend:
+  #   build: ./frontend
+  #   container_name: prompt_polisher_ui
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - prompt-network
+
+  # Define the isolated bridge network for security
+networks:
+  prompt-network:
+    driver: bridge
+
+# Define the hard drive spaces so data isn't lost when containers stop
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:
