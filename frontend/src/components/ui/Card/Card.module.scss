@@ -1,0 +1,18 @@
+@import '../../../styles/mixins';
+
+.card {
+  @include glassmorphism();
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  color: var(--color-text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &.hoverable:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+}

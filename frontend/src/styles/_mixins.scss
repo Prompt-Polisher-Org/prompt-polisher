@@ -1,0 +1,21 @@
+@mixin glassmorphism($bg-color: rgba(26, 29, 45, 0.6), $blur: 12px, $border-color: rgba(255, 255, 255, 0.08)) {
+  background-color: $bg-color;
+  backdrop-filter: blur($blur) saturate(150%);
+  -webkit-backdrop-filter: blur($blur) saturate(150%);
+  border: 1px solid $border-color;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+@mixin focus-glow($color: var(--color-primary)) {
+  outline: none;
+  border-color: $color;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+  transition: all 0.2s ease-in-out;
+}
+
+@mixin text-gradient($start-color: var(--color-primary), $end-color: var(--color-accent)) {
+  background: linear-gradient(to right, $start-color, $end-color);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

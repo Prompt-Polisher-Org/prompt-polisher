@@ -1,0 +1,43 @@
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@mixin animate-fadeIn($duration: 0.3s, $ease: ease-out) {
+  animation: fadeIn $duration $ease forwards;
+}
+
+@mixin animate-slideUp($duration: 0.4s, $ease: cubic-bezier(0.16, 1, 0.3, 1)) {
+  animation: slideUp $duration $ease forwards;
+}
+
+@mixin animate-shimmer() {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
