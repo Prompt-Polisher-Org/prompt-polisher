@@ -2,6 +2,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 
+# ✅ Import routers (Step 11)
+from app.api.v1.auth import router as auth_router
+from app.api.v1.oauth import router as oauth_router
+
 app = FastAPI(title=settings.PROJECT_NAME)
 
 # ✅ Add CORS middleware
@@ -13,6 +17,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ✅ Wire auth routers (Step 11)
+app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
+app.include_router(oauth_router, prefix="/api/v1/auth/oauth", tags=["OAuth"])
 
 # ✅ Create /api/v1/health endpoint
 @app.get("/api/v1/health")

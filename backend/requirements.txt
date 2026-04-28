@@ -5,3 +5,7 @@ asyncpg
 alembic
 pydantic-settings
 python-dotenv
+pyseto
+passlib[bcrypt]
+httpx
+itsdangerous
