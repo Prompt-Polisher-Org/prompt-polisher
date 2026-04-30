@@ -11,6 +11,25 @@ class Settings(BaseSettings):
     POSTGRES_PORT: str = "5432"
     POSTGRES_DB: str = "prompt_db"
 
+    # PASETO
+    PASETO_SECRET_KEY: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    # Google OAuth2
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/oauth/google/callback"
+
+    # GitHub OAuth2
+    GITHUB_CLIENT_ID: str = ""
+    GITHUB_CLIENT_SECRET: str = ""
+    GITHUB_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/oauth/github/callback"
+
+    # Magic Link
+    MAGIC_LINK_SECRET: str = ""
+    MAGIC_LINK_EXPIRE_MINUTES: int = 15
+
     @property
     def DATABASE_URL(self) -> str:
         # We use 'asyncpg' because we are building an async FastAPI app
