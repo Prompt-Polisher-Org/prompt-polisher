@@ -5,8 +5,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
+from app.core.logging_config import setup_logging
 from app.api.v1.api import api_router
 from app.middleware.rate_limit import RateLimitMiddleware
+from app.middleware.error_handler import ErrorHandlerMiddleware
 
 
 @asynccontextmanager
@@ -16,6 +18,9 @@ async def lifespan(app: FastAPI):
     On shutdown: close the Redis connection.
     Falls back gracefully if Redis is not configured.
     """
+    # Initialize structured JSON logging
+    setup_logging()
+
     try:
         import redis.asyncio as aioredis
         redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
@@ -36,6 +41,9 @@ app = FastAPI(
     redoc_url="/redoc",
     lifespan=lifespan,
 )
+
+# ✅ Error handling + request ID tracking (outermost — catches everything)
+app.add_middleware(ErrorHandlerMiddleware)
 
 # ✅ Rate limiting (50 req/min per user or IP)
 app.add_middleware(RateLimitMiddleware)
