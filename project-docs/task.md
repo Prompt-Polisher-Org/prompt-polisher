@@ -128,40 +128,40 @@
 
 ### Authentication System `🗄️ BE`
 
-- [ ] Implement password hashing utility (`bcrypt`)
-- [ ] Implement JWT token creation + verification (`python-jose`):
-  - [ ] Access token generation (30 min expiry)
-  - [ ] Refresh token generation (7 day expiry)
-  - [ ] Token verification middleware
-- [ ] Create auth endpoints:
-  - [ ] `POST /api/v1/auth/register` — email + password registration
-  - [ ] `POST /api/v1/auth/login` — returns access + refresh tokens
-  - [ ] `POST /api/v1/auth/refresh` — refresh token rotation
-  - [ ] `POST /api/v1/auth/logout` — blacklist refresh token
+- [x] Implement password hashing utility (`bcrypt`)
+- [x] Implement JWT token creation + verification (`python-jose`):
+  - [x] Access token generation (30 min expiry)
+  - [x] Refresh token generation (7 day expiry)
+  - [x] Token verification middleware
+- [x] Create auth endpoints:
+  - [x] `POST /api/v1/auth/register` — email + password registration
+  - [x] `POST /api/v1/auth/login` — returns access + refresh tokens
+  - [x] `POST /api/v1/auth/refresh` — refresh token rotation
+  - [x] `POST /api/v1/auth/logout` — blacklist refresh token
 - [ ] Implement OAuth 2.0 flow:
   - [ ] `GET /api/v1/auth/oauth/google` — redirect to Google
   - [ ] `GET /api/v1/auth/oauth/google/callback` — handle callback
   - [ ] `GET /api/v1/auth/oauth/github` — redirect to GitHub
   - [ ] `GET /api/v1/auth/oauth/github/callback` — handle callback
-- [ ] Create `get_current_user` dependency for protected routes
+- [x] Create `get_current_user` dependency for protected routes
 - [ ] Write auth tests (register, login, token refresh, invalid token)
 
 ### User & Preferences API `🗄️ BE`
 
-- [ ] Create user endpoints:
-  - [ ] `GET /api/v1/users/me` — get current user profile
-  - [ ] `PUT /api/v1/users/me` — update profile (display name, avatar)
-  - [ ] `DELETE /api/v1/users/me` — account deletion
-- [ ] Create preferences endpoints:
-  - [ ] `GET /api/v1/users/me/preferences` — get preferences
-  - [ ] `PUT /api/v1/users/me/preferences` — update preferences
-- [ ] Define preference schema fields:
-  - [ ] `tone` (professional, casual, academic, creative)
-  - [ ] `verbosity` (concise, detailed, balanced)
-  - [ ] `target_model` (GPT-4, Claude, Gemini, General)
-  - [ ] `domain` (marketing, coding, writing, general)
-  - [ ] `custom_instructions` (free text)
-- [ ] Implement Redis rate limiting middleware (50 req/min/user)
+- [x] Create user endpoints:
+  - [x] `GET /api/v1/users/me` — get current user profile
+  - [x] `PUT /api/v1/users/me` — update profile (display name, avatar)
+  - [x] `DELETE /api/v1/users/me` — account deletion
+- [x] Create preferences endpoints:
+  - [x] `GET /api/v1/users/me/preferences` — get preferences
+  - [x] `PUT /api/v1/users/me/preferences` — update preferences
+- [x] Define preference schema fields:
+  - [x] `tone` (professional, casual, academic, creative)
+  - [x] `verbosity` (concise, detailed, balanced)
+  - [x] `target_model` (GPT-4, Claude, Gemini, General)
+  - [x] `domain` (marketing, coding, writing, general)
+  - [x] `custom_instructions` (free text)
+- [x] Implement Redis rate limiting middleware (50 req/min/user)
 - [ ] Write user + preferences tests
 
 ### Database & Migrations `🗄️ BE`
