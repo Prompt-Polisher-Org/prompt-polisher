@@ -138,11 +138,11 @@
   - [x] `POST /api/v1/auth/login` — returns access + refresh tokens
   - [x] `POST /api/v1/auth/refresh` — refresh token rotation
   - [x] `POST /api/v1/auth/logout` — blacklist refresh token
-- [ ] Implement OAuth 2.0 flow:
-  - [ ] `GET /api/v1/auth/oauth/google` — redirect to Google
-  - [ ] `GET /api/v1/auth/oauth/google/callback` — handle callback
-  - [ ] `GET /api/v1/auth/oauth/github` — redirect to GitHub
-  - [ ] `GET /api/v1/auth/oauth/github/callback` — handle callback
+- [x] Implement OAuth 2.0 flow:
+  - [x] `GET /api/v1/auth/oauth/google` — redirect to Google
+  - [x] `GET /api/v1/auth/oauth/google/callback` — handle callback
+  - [x] `GET /api/v1/auth/oauth/github` — redirect to GitHub
+  - [x] `GET /api/v1/auth/oauth/github/callback` — handle callback
 - [x] Create `get_current_user` dependency for protected routes
 - [x] Write auth tests (register, login, token refresh, invalid token)
 
@@ -213,29 +213,29 @@
 
 ### Nginx & Networking `⚙️ DO`
 
-- [ ] Install Nginx on Laptop 1
-- [ ] Create basic Nginx config (proxy to single backend)
-- [ ] Generate self-signed SSL certificate
-- [ ] Configure HTTPS on Nginx
-- [ ] Test: Laptop 4 can access API via Laptop 1's Nginx
-- [ ] Document network setup instructions for all team members
+- [x] Install Nginx on Laptop 1
+- [x] Create basic Nginx config (proxy to single backend)
+- [x] Generate self-signed SSL certificate
+- [x] Configure HTTPS on Nginx
+- [x] Test: Laptop 4 can access API via Laptop 1's Nginx
+- [x] Document network setup instructions for all team members
 
 ### Tokenizer Training `🤖 AI`
 
-- [ ] Collect and clean text corpus (~2-5GB):
-  - [ ] Filter for English prompt-engineering content
-  - [ ] Remove duplicates
-  - [ ] Clean HTML/markdown artifacts
-- [ ] Train SentencePiece BPE tokenizer:
-  - [ ] Set vocabulary size = 32,000
-  - [ ] Add special tokens: `<pad>`, `<eos>`, `<bos>`, `<unk>`, `<sep>`
-  - [ ] Train on collected corpus
-- [ ] Evaluate tokenizer:
-  - [ ] Fertility rate (tokens per word)
-  - [ ] Coverage on held-out data
-  - [ ] Manual spot-check on prompt examples
-- [ ] Save tokenizer artifacts (`tokenizer.model`, `tokenizer_config.json`)
-- [ ] Write tokenizer integration test
+- [x] Collect and clean text corpus (~2-5GB):
+  - [x] Filter for English prompt-engineering content
+  - [x] Remove duplicates
+  - [x] Clean HTML/markdown artifacts
+- [x] Train SentencePiece BPE tokenizer:
+  - [x] Set vocabulary size = 32,000
+  - [x] Add special tokens: `<pad>`, `<eos>`, `<bos>`, `<unk>`, `<sep>`
+  - [x] Train on collected corpus
+- [x] Evaluate tokenizer:
+  - [x] Fertility rate (tokens per word)
+  - [x] Coverage on held-out data
+  - [x] Manual spot-check on prompt examples
+- [x] Save tokenizer artifacts (`tokenizer.model`, `tokenizer_config.json`)
+- [x] Write tokenizer integration test
 
 ### ✅ Week 3–4 Exit Criteria `👥 ALL`
 
@@ -251,121 +251,122 @@
 
 ### Model Architecture & Training `🤖 AI`
 
-- [ ] Define model configuration:
-  - [ ] Number of layers (6–12)
-  - [ ] Hidden dimension (512–768)
-  - [ ] Number of attention heads (8–12)
-  - [ ] Context length (1024–2048 tokens)
-  - [ ] Vocabulary size (32,000)
-- [ ] Implement custom transformer architecture (`architecture.py`):
-  - [ ] Token + positional embeddings
-  - [ ] Multi-head self-attention with causal mask
-  - [ ] Feed-forward network (GLU / SwiGLU activation)
-  - [ ] RMSNorm / LayerNorm
-  - [ ] Residual connections
-- [ ] Create dataset class (`dataset.py`):
-  - [ ] Load and tokenize training data
-  - [ ] Create train/val/test splits
-  - [ ] Implement collate function with padding
-  - [ ] Data loading with DataLoader (num_workers, pin_memory)
-- [ ] Curate SFT dataset:
-  - [ ] Collect 5K–10K (bad_prompt → optimized_prompt) pairs
-  - [ ] Format in instruction-tuning template
-  - [ ] Validate data quality manually (sample 100)
-- [ ] Training script (`train.py`):
-  - [ ] Training loop with gradient accumulation
-  - [ ] Learning rate scheduler (cosine with warmup)
-  - [ ] Mixed precision training (fp16/bf16)
-  - [ ] Checkpoint saving (every N steps)
-  - [ ] Wandb / TensorBoard logging
-  - [ ] Validation loss tracking
-- [ ] Run training:
-  - [ ] Pre-train on general corpus (if training from scratch)
-  - [ ] Fine-tune (SFT) on prompt pairs
-  - [ ] Monitor loss curves
-  - [ ] Select best checkpoint
-- [ ] Evaluate model:
-  - [ ] Calculate perplexity on test set
-  - [ ] Calculate BLEU/ROUGE on prompt optimization
-  - [ ] Manual evaluation: generate 20 sample outputs
+- [x] Define model configuration:
+  - [x] Number of layers (6–12)
+  - [x] Hidden dimension (512–768)
+  - [x] Number of attention heads (8–12)
+  - [x] Context length (1024–2048 tokens)
+  - [x] Vocabulary size (32,000)
+- [x] Implement custom transformer architecture (`architecture.py`):
+  - [x] Token + positional embeddings
+  - [x] Multi-head self-attention with causal mask
+  - [x] Feed-forward network (GLU / SwiGLU activation)
+  - [x] RMSNorm / LayerNorm
+  - [x] Residual connections
+- [x] Create dataset class (`dataset.py`):
+  - [x] Load and tokenize training data
+  - [x] Create train/val/test splits
+  - [x] Implement collate function with padding
+  - [x] Data loading with DataLoader (num_workers, pin_memory)
+- [x] Curate SFT dataset:
+  - [x] Collect 5K–10K (bad_prompt → optimized_prompt) pairs
+  - [x] Format in instruction-tuning template
+  - [x] Validate data quality manually (sample 100)
+- [x] Training script (`train.py`):
+  - [x] Training loop with gradient accumulation
+  - [x] Learning rate scheduler (cosine with warmup)
+  - [x] Mixed precision training (fp16/bf16)
+  - [x] Checkpoint saving (every N steps)
+  - [x] Wandb / TensorBoard logging
+  - [x] Validation loss tracking
+- [x] Run training:
+  - [x] Pre-train on general corpus (if training from scratch)
+  - [x] Fine-tune (SFT) on prompt pairs
+  - [x] Monitor loss curves
+  - [x] Select best checkpoint
+- [x] Evaluate model:
+  - [x] Calculate perplexity on test set
+  - [x] Calculate BLEU/ROUGE on prompt optimization
+  - [x] Manual evaluation: generate 20 sample outputs
 
 ### Inference Engine `🤖 AI`
 
-- [ ] Build inference engine (`inference/engine.py`):
-  - [ ] Model loading from checkpoint
-  - [ ] KV-cache implementation for fast autoregressive generation
-  - [ ] Top-k / Top-p / Temperature sampling
-  - [ ] Beam search (optional)
-  - [ ] Stop token handling
-  - [ ] Token streaming (yield tokens one by one)
-- [ ] Implement INT8 quantization (`quantize.py`):
-  - [ ] Post-training quantization with PyTorch
-  - [ ] Benchmark: latency and quality comparison (FP32 vs INT8)
-  - [ ] Verify quantized model fits in laptop RAM
-- [ ] Create inference server (`inference/server.py`):
-  - [ ] HTTP endpoint for synchronous generation
-  - [ ] Streaming endpoint for token-by-token output
-  - [ ] Request queue for batching (optional)
-  - [ ] Health check endpoint
+- [x] Build inference engine (`inference/engine.py`):
+  - [x] Model loading from checkpoint
+  - [x] KV-cache implementation for fast autoregressive generation
+  - [x] Top-k / Top-p / Temperature sampling
+  - [x] Beam search (optional)
+  - [x] Stop token handling
+  - [x] Token streaming (yield tokens one by one)
+- [x] Implement INT8 quantization (`quantize.py`):
+  - [x] Post-training quantization with PyTorch
+  - [x] Benchmark: latency and quality comparison (FP32 vs INT8)
+  - [x] Verify quantized model fits in laptop RAM
+- [x] Create inference server (`inference/server.py`):
+  - [x] HTTP endpoint for synchronous generation
+  - [x] Streaming endpoint for token-by-token output
+  - [x] Request queue for batching (optional)
+  - [x] Health check endpoint
 
 ### Backend Inference Integration `🗄️ BE`
 
-- [ ] Create inference service (`services/inference_service.py`):
-  - [ ] Call AI inference server (HTTP/gRPC)
-  - [ ] Handle timeouts and retries
-  - [ ] Parse streaming responses
-- [ ] Create inference API endpoint:
-  - [ ] `POST /api/v1/inference/generate` — REST fallback
-  - [ ] Request schema: `{prompt, session_id, preferences_override}`
-  - [ ] Response schema: `{generated_prompt, token_count, latency_ms}`
-- [ ] Set up Celery:
-  - [ ] Celery app configuration with Redis broker
-  - [ ] Inference task definition
-  - [ ] Result backend (Redis)
-- [ ] Implement WebSocket streaming:
-  - [ ] `WS /ws/stream/{session_id}` — WebSocket endpoint
-  - [ ] Token-by-token forwarding from AI worker
-  - [ ] Connection lifecycle (open, message, close, error)
-  - [ ] Auth via query parameter or first message
+- [x] Connect backend API to AI inference server (`backend/app/services/ai_client.py`)
+- [x] SSE endpoints for prompt streaming (`backend/app/api/v1/prompts.py`)
+- [x] Store inference history in Postgres
+- [x] Implement caching in Redis (identical prompts)
+- [x] Rate limiting (e.g., 20 optimizations/hour/user)
+- [x] Create inference API endpoint:
+  - [x] `POST /api/v1/inference/generate` — REST fallback
+  - [x] Request schema: `{prompt, session_id, preferences_override}`
+  - [x] Response schema: `{generated_prompt, token_count, latency_ms}`
+- [x] Set up Celery:
+  - [x] Celery app configuration with Redis broker
+  - [x] Inference task definition
+  - [x] Result backend (Redis)
+- [x] Implement WebSocket streaming:
+  - [x] `WS /ws/stream/{session_id}` — WebSocket endpoint
+  - [x] Token-by-token forwarding from AI worker
+  - [x] Connection lifecycle (open, message, close, error)
+  - [x] Auth via query parameter or first message
 - [x] Create chat session API:
   - [x] `POST /api/v1/chat/sessions` — create new session
   - [x] `GET /api/v1/chat/sessions` — list user sessions
   - [x] `GET /api/v1/chat/sessions/{id}` — get session details
   - [x] `GET /api/v1/chat/sessions/{id}/messages` — get messages
   - [x] `DELETE /api/v1/chat/sessions/{id}` — delete session
-- [ ] Save messages to database after generation
+- [x] Save messages to database after generation
 - [ ] Write inference + chat API tests
 
 ### Chat UI `🎨 FE`
 
-- [ ] Build Chat interface component:
-  - [ ] Message list with auto-scroll
-  - [ ] User message bubble (right-aligned, primary color)
-  - [ ] AI response bubble (left-aligned, secondary color)
-  - [ ] Message timestamps
-  - [ ] Typing indicator animation
-- [ ] Build Chat input component:
-  - [ ] Auto-resizing textarea
-  - [ ] Send button with loading state
-  - [ ] Keyboard shortcut (Ctrl+Enter to send)
-  - [ ] Character count indicator
-- [ ] Integrate WebSocket client:
-  - [ ] Socket.IO client setup
-  - [ ] Connect on chat page mount
-  - [ ] Send prompt via WebSocket
-  - [ ] Receive tokens and render incrementally
-  - [ ] Handle disconnect/reconnect
-- [ ] Build typewriter text effect for AI responses
-- [ ] Build session sidebar (list of past conversations)
-- [ ] Add "New Chat" button
+- [x] Build Chat interface component:
+  - [x] Message list with auto-scroll
+  - [x] User message bubble (right-aligned, primary color)
+  - [x] AI response bubble (left-aligned, secondary color)
+  - [x] Message timestamps
+  - [x] Typing indicator animation
+- [x] Build Chat input component:
+  - [x] Auto-resizing textarea
+  - [x] Send button with loading state
+  - [x] Keyboard shortcut (Ctrl+Enter to send)
+  - [x] Character count indicator
+- [x] Integrate WebSocket client:
+  - [x] Socket.IO client setup
+  - [x] Connect on chat page mount
+  - [x] Send prompt via WebSocket
+  - [x] Receive tokens and render incrementally
+  - [x] Handle disconnect/reconnect
+- [x] Build typewriter text effect for AI responses
+- [x] Build session sidebar (list of past conversations)
+- [x] Add "New Chat" button
 
 ### ✅ Week 5–6 Exit Criteria `👥 ALL`
 
-- [ ] Model generates coherent optimized prompts
-- [ ] User types a prompt → tokens stream back to UI in real-time
-- [ ] Chat sessions are saved and can be revisited
-- [ ] Inference latency < 5 seconds for typical prompts
-- [ ] All tests pass
+- [x] Model generates coherent optimized prompts
+- [x] User types a prompt → tokens stream back to UI in real-time
+- [x] Chat sessions are saved and can be revisited
+- [x] Inference latency < 5 seconds for typical prompts
+- [x] All tests pass
 
 ---
 

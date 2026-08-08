@@ -64,6 +64,24 @@ services:
   #   networks:
   #     - prompt-network
 
+  # 6. Nginx — Reverse proxy + SSL termination + future load balancer
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: prompt_polisher_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infra/nginx/ssl:/etc/nginx/ssl:ro
+    # depends_on:
+    #   - backend
+    #   - frontend
+    networks:
+      - prompt-network
+    restart: unless-stopped
+
+
   # Define the isolated bridge network for security
 networks:
   prompt-network:

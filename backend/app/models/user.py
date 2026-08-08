@@ -11,6 +11,10 @@ class User(Base):
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
     full_name: Mapped[str] = mapped_column(String(255), nullable=True)
-    hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
+    hashed_password: Mapped[str] = mapped_column(String(255), nullable=True)  # nullable for OAuth users
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_at: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
+
+    # OAuth fields — populated when user signs in via Google/GitHub
+    oauth_provider: Mapped[str] = mapped_column(String(50), nullable=True)   # "google" | "github" | None
+    oauth_id: Mapped[str] = mapped_column(String(255), nullable=True)        # provider's unique user ID

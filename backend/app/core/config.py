@@ -19,9 +19,32 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30       # 30 minutes
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7          # 7 days
 
+    # OAuth 2.0 — Google
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+
+    # OAuth 2.0 — GitHub
+    GITHUB_CLIENT_ID: str = ""
+    GITHUB_CLIENT_SECRET: str = ""
+
+    # Base URL for OAuth redirect callbacks (e.g. http://localhost:8000)
+    OAUTH_REDIRECT_BASE_URL: str = "http://localhost:8000"
+
+    # Redis Cache & Rate Limiting
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: str = "6379"
+    REDIS_DB: str = "0"
+    
+    # AI Inference Server
+    AI_INFERENCE_SERVER_URL: str = "http://localhost:8001"
+
     @property
     def DATABASE_URL(self) -> str:
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+
+    @property
+    def REDIS_URL(self) -> str:
+        return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra="ignore")
 

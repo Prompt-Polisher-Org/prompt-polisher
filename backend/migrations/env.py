@@ -16,6 +16,7 @@ from app.models.session import ChatSession
 from app.models.message import Message
 from app.models.feedback import Feedback
 from app.models.usage_log import UsageLog
+from app.models.prompt_history import PromptHistory
 # -----------------------------------------------
 
 config = context.config
