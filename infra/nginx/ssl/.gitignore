@@ -1,0 +1,7 @@
+# Don't commit actual SSL certificates to git
+*.key
+*.crt
+*.pem
+!.gitignore
+!generate-ssl.sh
+!generate-ssl.ps1

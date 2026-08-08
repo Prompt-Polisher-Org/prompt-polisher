@@ -1,0 +1,6 @@
+# Don't commit large corpus files or model binaries to git
+*.txt
+*.model
+*.vocab
+!.gitignore
+!.gitkeep

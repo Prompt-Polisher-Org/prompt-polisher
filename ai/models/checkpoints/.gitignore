@@ -1,0 +1,8 @@
+# Don't commit large checkpoint files to git
+*.pt
+*.bin
+*.safetensors
+logs/
+evaluation/
+!.gitignore
+!config.json

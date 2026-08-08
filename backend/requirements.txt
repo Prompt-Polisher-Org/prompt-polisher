@@ -8,4 +8,6 @@ python-dotenv
 passlib[bcrypt]
 python-jose[cryptography]
 email-validator
-redis
+redis
+httpx
+celery[redis]
