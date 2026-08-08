@@ -10,14 +10,14 @@
 | Phase | Weeks | Total Tasks | Completed | Progress |
 |---|---|---|---|---|
 | Foundation | 1–2 | 38 | 38 | 🟢 100% |
-| Auth & Database | 3–4 | 36 | 0 | 🔴 0% |
-| AI Model & Inference | 5–6 | 40 | 0 | 🔴 0% |
+| Auth & Database | 3–4 | 36 | 20 | 🟡 55% |
+| AI Model & Inference | 5–6 | 40 | 1 | 🟡 2% |
 | RAG & Chat Experience | 7–8 | 38 | 0 | 🔴 0% |
-| System Integration | 9–10 | 36 | 0 | 🔴 0% |
-| RLHF & Optimization | 11–12 | 34 | 0 | 🔴 0% |
+| System Integration | 9–10 | 36 | 4 | 🟡 11% |
+| RLHF & Optimization | 11–12 | 34 | 2 | 🟡 5% |
 | Polish & Load Testing | 13 | 28 | 0 | 🔴 0% |
 | Cloud Deploy & Presentation | 14 | 26 | 0 | 🔴 0% |
-| **TOTAL** | **1–14** | **276** | **38** | **🟡 14%** |
+| **TOTAL** | **1–14** | **276** | **65** | **🟡 23%** |
 
 ---
 
@@ -144,7 +144,7 @@
   - [ ] `GET /api/v1/auth/oauth/github` — redirect to GitHub
   - [ ] `GET /api/v1/auth/oauth/github/callback` — handle callback
 - [x] Create `get_current_user` dependency for protected routes
-- [ ] Write auth tests (register, login, token refresh, invalid token)
+- [x] Write auth tests (register, login, token refresh, invalid token)
 
 ### User & Preferences API `🗄️ BE`
 
@@ -162,54 +162,54 @@
   - [x] `domain` (marketing, coding, writing, general)
   - [x] `custom_instructions` (free text)
 - [x] Implement Redis rate limiting middleware (50 req/min/user)
-- [ ] Write user + preferences tests
+- [x] Write user + preferences tests
 
 ### Database & Migrations `🗄️ BE`
 
-- [ ] Create Alembic migration for full schema:
-  - [ ] `users` table
-  - [ ] `user_preferences` table
-  - [ ] `chat_sessions` table
-  - [ ] `messages` table
-  - [ ] `feedback` table
-  - [ ] `usage_logs` table
-- [ ] Add database indexes (email unique, user_id FKs, created_at)
-- [ ] Test migration up + down (rollback)
-- [ ] Create seed data script for development
+- [x] Create Alembic migration for full schema:
+  - [x] `users` table
+  - [x] `user_preferences` table
+  - [x] `chat_sessions` table
+  - [x] `messages` table
+  - [x] `feedback` table
+  - [x] `usage_logs` table
+- [x] Add database indexes (email unique, user_id FKs, created_at)
+- [x] Test migration up + down (rollback)
+- [x] Create seed data script for development
 
 ### Auth & Onboarding UI `🎨 FE`
 
-- [ ] Build Login page:
-  - [ ] Email + password form with validation
-  - [ ] Google OAuth button
-  - [ ] GitHub OAuth button
-  - [ ] "Forgot password" link (placeholder)
-  - [ ] Glassmorphism card design
-  - [ ] Form submission animation
-- [ ] Build Register page:
-  - [ ] Name, email, password, confirm password
-  - [ ] Password strength indicator
-  - [ ] Terms of service checkbox
-  - [ ] Success animation on registration
-- [ ] Build Onboarding Preference Wizard:
-  - [ ] Step 1: Select tone preference (card selection UI)
-  - [ ] Step 2: Select verbosity preference
-  - [ ] Step 3: Select target AI model
-  - [ ] Step 4: Select domain
-  - [ ] Step 5: Custom instructions textarea
-  - [ ] Progress bar / stepper animation
-  - [ ] Animated transitions between steps
-- [ ] Build Dashboard shell layout:
-  - [ ] Collapsible sidebar with navigation links
-  - [ ] Top header with user avatar + dropdown
-  - [ ] Main content area with outlet
-  - [ ] Responsive: sidebar collapses to hamburger on mobile
-- [ ] Create API client library (`lib/api.ts`):
-  - [ ] Axios instance with base URL
-  - [ ] Request interceptor (attach JWT)
-  - [ ] Response interceptor (auto-refresh on 401)
-  - [ ] Error handler (toast notifications)
-- [ ] Set up Zustand auth store (user, tokens, login/logout actions)
+- [x] Build Login page:
+  - [x] Email + password form with validation
+  - [x] Google OAuth button
+  - [x] GitHub OAuth button
+  - [x] "Forgot password" link (placeholder)
+  - [x] Glassmorphism card design
+  - [x] Form submission animation
+- [x] Build Register page:
+  - [x] Name, email, password, confirm password
+  - [x] Password strength indicator
+  - [x] Terms of service checkbox
+  - [x] Success animation on registration
+- [x] Build Onboarding Preference Wizard:
+  - [x] Step 1: Select tone preference (card selection UI)
+  - [x] Step 2: Select verbosity preference
+  - [x] Step 3: Select target AI model
+  - [x] Step 4: Select domain
+  - [x] Step 5: Custom instructions textarea
+  - [x] Progress bar / stepper animation
+  - [x] Animated transitions between steps
+- [x] Build Dashboard shell layout:
+  - [x] Collapsible sidebar with navigation links
+  - [x] Top header with user avatar + dropdown
+  - [x] Main content area with outlet
+  - [x] Responsive: sidebar collapses to hamburger on mobile
+- [x] Create API client library (`lib/api.ts`):
+  - [x] Axios instance with base URL
+  - [x] Request interceptor (attach JWT)
+  - [x] Response interceptor (auto-refresh on 401)
+  - [x] Error handler (toast notifications)
+- [x] Set up Zustand auth store (user, tokens, login/logout actions)
 
 ### Nginx & Networking `⚙️ DO`
 
@@ -327,12 +327,12 @@
   - [ ] Token-by-token forwarding from AI worker
   - [ ] Connection lifecycle (open, message, close, error)
   - [ ] Auth via query parameter or first message
-- [ ] Create chat session API:
-  - [ ] `POST /api/v1/chat/sessions` — create new session
-  - [ ] `GET /api/v1/chat/sessions` — list user sessions
-  - [ ] `GET /api/v1/chat/sessions/{id}` — get session details
-  - [ ] `GET /api/v1/chat/sessions/{id}/messages` — get messages
-  - [ ] `DELETE /api/v1/chat/sessions/{id}` — delete session
+- [x] Create chat session API:
+  - [x] `POST /api/v1/chat/sessions` — create new session
+  - [x] `GET /api/v1/chat/sessions` — list user sessions
+  - [x] `GET /api/v1/chat/sessions/{id}` — get session details
+  - [x] `GET /api/v1/chat/sessions/{id}/messages` — get messages
+  - [x] `DELETE /api/v1/chat/sessions/{id}` — delete session
 - [ ] Save messages to database after generation
 - [ ] Write inference + chat API tests
 
@@ -521,15 +521,15 @@
 
 ### Backend Hardening `🗄️ BE`
 
-- [ ] Implement error handling middleware:
-  - [ ] Global exception handler
-  - [ ] Structured error response format
-  - [ ] Request ID tracking for debugging
+- [x] Implement error handling middleware:
+  - [x] Global exception handler (catches 500s safely)
+- [x] Structured error response format (`{"error": {...}}`)
+- [x] Request ID tracking for debugging
 - [ ] Add retry logic for external service calls (Qdrant, Redis)
 - [ ] Implement circuit breaker pattern for inference calls
 - [ ] Add graceful shutdown handling
 - [ ] Connection pool configuration (SQLAlchemy pool_size, max_overflow)
-- [ ] Add structured logging (JSON format)
+- [x] Add structured logging (JSON format)
 
 ### Frontend Polish `🎨 FE`
 
@@ -572,15 +572,15 @@
   - [ ] Optional comment textarea (shown on thumbs down)
   - [ ] Smooth animation on submit
   - [ ] "Thank you for feedback" confirmation
-- [ ] `🗄️ BE` Create feedback API:
-  - [ ] `POST /api/v1/feedback` — submit feedback
-  - [ ] `GET /api/v1/feedback/stats` — aggregate feedback stats
-  - [ ] Store: message_id, user_id, rating, comment, timestamp
-- [ ] `🗄️ BE` Build RLHF data pipeline:
-  - [ ] Export feedback as (prompt, chosen, rejected) triples
-  - [ ] Chosen = messages with thumbs up
-  - [ ] Rejected = messages with thumbs down
-  - [ ] Data validation and cleaning
+- [x] `🗄️ BE` Create feedback API:
+  - [x] `POST /api/v1/feedback` — submit feedback
+  - [x] `GET /api/v1/feedback/stats` — aggregate feedback stats
+  - [x] Store: message_id, user_id, rating, comment, timestamp
+- [x] `🗄️ BE` Build RLHF data pipeline:
+  - [x] Export feedback as (prompt, chosen, rejected) triples
+  - [x] Chosen = messages with thumbs up
+  - [x] Rejected = messages with thumbs down
+  - [x] Data validation and cleaning
 
 ### RLHF / DPO Training `🤖 AI`
 

@@ -14,6 +14,8 @@ from app.models.user import User # Import models so they are registered with Bas
 from app.models.preference import UserPreference
 from app.models.session import ChatSession
 from app.models.message import Message
+from app.models.feedback import Feedback
+from app.models.usage_log import UsageLog
 # -----------------------------------------------
 
 config = context.config
