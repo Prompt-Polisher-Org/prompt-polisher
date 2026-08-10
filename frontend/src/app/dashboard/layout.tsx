@@ -12,7 +12,9 @@ import {
   X, 
   LogOut, 
   Wand2, 
-  ChevronDown
+  ChevronDown,
+  History,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import styles from './Dashboard.module.scss';
@@ -42,7 +44,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const navItems = [
     { label: 'Chat', icon: <MessageSquare size={20} />, href: '/dashboard' },
-    { label: 'Prompt Library', icon: <Wand2 size={20} />, href: '/dashboard/library' },
+    { label: 'History', icon: <History size={20} />, href: '/dashboard/history' },
+    { label: 'Preferences', icon: <SlidersHorizontal size={20} />, href: '/dashboard/preferences' },
     { label: 'Analytics', icon: <BarChart2 size={20} />, href: '/dashboard/analytics' },
     { label: 'Settings', icon: <Settings size={20} />, href: '/dashboard/settings' },
   ];
@@ -142,8 +145,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       <p className="text-sm font-medium text-white">{user?.full_name}</p>
                       <p className="text-xs text-slate-400 truncate">{user?.email}</p>
                     </div>
-                    <button onClick={() => { setDropdownOpen(false); router.push('/dashboard/settings'); }}>
-                      <Settings size={16} />
+                    <button onClick={() => { setDropdownOpen(false); router.push('/dashboard/preferences'); }}>
+                      <SlidersHorizontal size={16} />
                       Preferences
                     </button>
                     <button className={styles.logoutBtn} onClick={() => logout()}>

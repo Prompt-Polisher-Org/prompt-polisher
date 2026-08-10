@@ -374,77 +374,77 @@
 
 ### Embedding & Vector Database `🗄️ BE`
 
-- [ ] Create embedding service (`services/embedding_service.py`):
-  - [ ] Load `sentence-transformers/all-MiniLM-L6-v2`
-  - [ ] `embed_text(text: str) → List[float]` method
-  - [ ] `embed_batch(texts: List[str]) → List[List[float]]` method
-  - [ ] Lazy model loading (load once, reuse)
-- [ ] Set up Qdrant collections:
-  - [ ] `user_preferences` collection (384 dims, cosine distance)
-  - [ ] `chat_history` collection (384 dims, cosine distance)
-  - [ ] `prompt_patterns` collection (384 dims, cosine distance)
-  - [ ] Configure payload indexes for filtering
-- [ ] Implement ingestion pipeline:
-  - [ ] Auto-embed user preferences on save/update
-  - [ ] Auto-embed messages after creation (Celery task)
-  - [ ] Batch embedding for historical data backfill
-- [ ] Implement retrieval service (`services/retrieval_service.py`):
-  - [ ] `search_preferences(user_id, query) → results`
-  - [ ] `search_history(user_id, query, top_k=5) → results`
-  - [ ] `search_patterns(query, top_k=3) → results`
-  - [ ] Combined search: run 3 queries in parallel
-  - [ ] Result deduplication and ranking
+- [x] Create embedding service (`services/embedding_service.py`):
+  - [x] Load `sentence-transformers/all-MiniLM-L6-v2`
+  - [x] `embed_text(text: str) → List[float]` method
+  - [x] `embed_batch(texts: List[str]) → List[List[float]]` method
+  - [x] Lazy model loading (load once, reuse)
+- [x] Set up Qdrant collections:
+  - [x] `user_preferences` collection (384 dims, cosine distance)
+  - [x] `chat_history` collection (384 dims, cosine distance)
+  - [x] `prompt_patterns` collection (384 dims, cosine distance)
+  - [x] Configure payload indexes for filtering
+- [x] Implement ingestion pipeline:
+  - [x] Auto-embed user preferences on save/update
+  - [x] Auto-embed messages after creation (Celery task)
+  - [x] Batch embedding for historical data backfill
+- [x] Implement retrieval service (`services/retrieval_service.py`):
+  - [x] `search_preferences(user_id, query) → results`
+  - [x] `search_history(user_id, query, top_k=5) → results`
+  - [x] `search_patterns(query, top_k=3) → results`
+  - [x] Combined search: run 3 queries in parallel
+  - [x] Result deduplication and ranking
 
 ### RAG Integration `🤖 AI` + `🗄️ BE`
 
-- [ ] Build context augmenter (`rag/augmenter.py`):
-  - [ ] Construct augmented system prompt template
-  - [ ] Inject user preferences into prompt
-  - [ ] Inject relevant chat history into prompt
-  - [ ] Inject prompt patterns into prompt
-  - [ ] Token budget management (don't exceed context window)
-- [ ] Integrate RAG into inference pipeline:
-  - [ ] Inference endpoint now: retrieve → augment → generate
-  - [ ] Pass augmented prompt to model instead of raw prompt
-  - [ ] Log RAG retrieval results for debugging
-- [ ] Create prompt patterns seed data:
-  - [ ] Curate 500+ high-quality prompt templates
-  - [ ] Categorize by domain (coding, writing, marketing, etc.)
-  - [ ] Embed and insert into Qdrant `prompt_patterns` collection
-- [ ] Write RAG integration tests:
-  - [ ] Test retrieval returns relevant results
-  - [ ] Test augmented prompts are well-formed
-  - [ ] Test model output improves with RAG context
+- [x] Build context augmenter (`rag/augmenter.py`):
+  - [x] Construct augmented system prompt template
+  - [x] Inject user preferences into prompt
+  - [x] Inject relevant chat history into prompt
+  - [x] Inject prompt patterns into prompt
+  - [x] Token budget management (don't exceed context window)
+- [x] Integrate RAG into inference pipeline:
+  - [x] Inference endpoint now: retrieve → augment → generate
+  - [x] Pass augmented prompt to model instead of raw prompt
+  - [x] Log RAG retrieval results for debugging
+- [x] Create prompt patterns seed data:
+  - [x] Curate 500+ high-quality prompt templates
+  - [x] Categorize by domain (coding, writing, marketing, etc.)
+  - [x] Embed and insert into Qdrant `prompt_patterns` collection
+- [x] Write RAG integration tests:
+  - [x] Test retrieval returns relevant results
+  - [x] Test augmented prompts are well-formed
+  - [x] Test model output improves with RAG context
 
 ### Enhanced Chat UI `🎨 FE`
 
-- [ ] Build Prompt Comparison View:
-  - [ ] Side-by-side layout: "Your Prompt" vs "Optimized Prompt"
-  - [ ] Syntax highlighting for prompt text
-  - [ ] Diff highlighting (show what changed)
-  - [ ] Toggle between side-by-side and inline view
-- [ ] Build Copy-to-Clipboard feature:
-  - [ ] One-click copy button on optimized prompt
-  - [ ] Copy success animation (checkmark + toast)
-  - [ ] Copy as plain text or markdown
-- [ ] Build Chat History page:
-  - [ ] List all past sessions with titles and dates
-  - [ ] Search/filter conversations
-  - [ ] Click to reopen a session
-  - [ ] Delete session with confirmation modal
-- [ ] Build Preference Panel (in dashboard):
-  - [ ] View current preferences
-  - [ ] Edit preferences inline
-  - [ ] Preview: "Your preferences will make prompts like..."
-  - [ ] Save with success feedback
-- [ ] Enhance streaming UX:
-  - [ ] Cursor blink animation during generation
-  - [ ] "Stop generating" button
-  - [ ] Token count display
-  - [ ] Generation time display
-- [ ] Add prompt templates / quick-starts:
-  - [ ] Template cards for common use cases
-  - [ ] Click to pre-fill prompt input
+- [x] Build Prompt Comparison View:
+  - [x] Side-by-side layout: "Your Prompt" vs "Optimized Prompt"
+  - [x] Syntax highlighting for prompt text
+  - [x] Diff highlighting (show what changed)
+  - [x] Toggle between side-by-side and inline view
+- [x] Build Copy-to-Clipboard feature:
+  - [x] One-click copy button on optimized prompt
+  - [x] Copy success animation (checkmark + toast)
+  - [x] Copy as plain text or markdown
+- [x] Build Chat History page:
+  - [x] List all past sessions with titles and dates
+  - [x] Search/filter conversations
+  - [x] Click to reopen a session
+  - [x] Delete session with confirmation modal
+- [x] Build Preference Panel (in dashboard):
+  - [x] View current preferences
+  - [x] Edit preferences inline
+  - [x] Preview: "Your preferences will make prompts like..."
+  - [x] Save with success feedback
+- [x] Enhance streaming UX:
+  - [x] Cursor blink animation during generation
+  - [x] "Stop generating" button
+  - [x] Token count display
+  - [x] Generation time display
+- [x] Add prompt templates / quick-starts:
+  - [x] Template cards for common use cases
+  - [x] Click to pre-fill prompt input
 
 ### ✅ Week 7–8 Exit Criteria `👥 ALL`
 
