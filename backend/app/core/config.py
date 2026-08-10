@@ -38,6 +38,10 @@ class Settings(BaseSettings):
     # AI Inference Server
     AI_INFERENCE_SERVER_URL: str = "http://localhost:8001"
 
+    # Qdrant Vector Database
+    QDRANT_HOST: str = "localhost"
+    QDRANT_PORT: int = 6333
+
     @property
     def DATABASE_URL(self) -> str:
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"

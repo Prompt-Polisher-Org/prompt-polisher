@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { ChatInterface } from '@/components/chat/ChatInterface';
 import { SessionSidebar } from '@/components/chat/SessionSidebar';
-import { v4 as uuidv4 } from 'uuid';
+
+const uuidv4 = () => crypto.randomUUID();
 
 export default function DashboardPage() {
   const [sessions, setSessions] = useState([

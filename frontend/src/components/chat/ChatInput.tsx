@@ -1,3 +1,12 @@
+'use client';
+
+/**
+ * ChatInput.tsx
+ * Week 5-6 (original) + Week 7-8 enhancements:
+ * [x] Accepts an externalValue prop so PromptTemplates can pre-fill the input
+ * [x] Retains all existing auto-resize, keyboard shortcuts, and generation state
+ */
+
 import { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import { Send, Sparkles } from 'lucide-react';
 
@@ -5,13 +14,39 @@ interface ChatInputProps {
   onSendMessage: (content: string) => void;
   isGenerating: boolean;
   placeholder?: string;
+  /** If set, overwrites the textarea value (used by template pre-fill) */
+  externalValue?: string;
+  /** Called after external value has been consumed so the parent can clear it */
+  onExternalValueConsumed?: () => void;
 }
 
-export function ChatInput({ onSendMessage, isGenerating, placeholder = "Type your prompt here..." }: ChatInputProps) {
+export function ChatInput({
+  onSendMessage,
+  isGenerating,
+  placeholder = 'Type your prompt here...',
+  externalValue,
+  onExternalValueConsumed,
+}: ChatInputProps) {
   const [input, setInput] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Auto-resize textarea
+  // Handle template pre-fill: set input and focus textarea
+  useEffect(() => {
+    if (externalValue !== undefined && externalValue !== '') {
+      setInput(externalValue);
+      onExternalValueConsumed?.();
+      // Focus and move cursor to end
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          const len = textareaRef.current.value.length;
+          textareaRef.current.setSelectionRange(len, len);
+        }
+      }, 50);
+    }
+  }, [externalValue, onExternalValueConsumed]);
+
+  // Auto-resize textarea height
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
@@ -49,7 +84,7 @@ export function ChatInput({ onSendMessage, isGenerating, placeholder = "Type you
         rows={1}
         className="flex-grow bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none resize-none py-3 max-h-[150px] overflow-y-auto scrollbar-hide text-[15px] leading-relaxed disabled:opacity-50"
       />
-      
+
       <div className="flex flex-col justify-end ml-2 pb-1 shrink-0">
         <button
           onClick={handleSend}
@@ -63,14 +98,24 @@ export function ChatInput({ onSendMessage, isGenerating, placeholder = "Type you
           {isGenerating ? (
             <Sparkles size={18} className="animate-pulse text-indigo-300" />
           ) : (
-            <Send size={18} className={input.trim() ? "translate-x-[-1px] translate-y-[1px]" : ""} />
+            <Send size={18} className={input.trim() ? 'translate-x-[-1px] translate-y-[1px]' : ''} />
           )}
         </button>
       </div>
 
-      {/* Character count / hints */}
+      {/* Hint bar */}
       <div className="absolute -bottom-6 right-2 text-xs text-slate-500">
-        <span className="hidden sm:inline">Press <kbd className="font-sans px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px]">Enter</kbd> to send, <kbd className="font-sans px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px]">Shift + Enter</kbd> for new line.</span>
+        <span className="hidden sm:inline">
+          Press{' '}
+          <kbd className="font-sans px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px]">
+            Enter
+          </kbd>{' '}
+          to send,{' '}
+          <kbd className="font-sans px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px]">
+            Shift + Enter
+          </kbd>{' '}
+          for new line.
+        </span>
         <span className="ml-3 font-mono">{input.length}</span>
       </div>
     </div>

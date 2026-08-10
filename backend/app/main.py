@@ -14,9 +14,9 @@ from app.middleware.error_handler import ErrorHandlerMiddleware
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
-    On startup: try to connect to Redis for rate limiting.
+    On startup: connect to Redis for rate limiting and initialise Qdrant collections.
     On shutdown: close the Redis connection.
-    Falls back gracefully if Redis is not configured.
+    Falls back gracefully if Redis or Qdrant is not configured.
     """
     # Initialize structured JSON logging
     setup_logging()
@@ -30,6 +30,15 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"⚠️  Redis unavailable ({e}) — rate limiting disabled")
         app.state.redis = None
+
+    # ── Qdrant collections bootstrap (Week 7-8) ───────────────────────────
+    try:
+        from app.services.qdrant_service import qdrant_service
+        qdrant_service.ensure_collections_exist()
+        print("✅ Qdrant collections ready")
+    except Exception as e:
+        print(f"⚠️  Qdrant unavailable ({e}) — RAG features disabled")
+
     yield
     if app.state.redis:
         await app.state.redis.aclose()
