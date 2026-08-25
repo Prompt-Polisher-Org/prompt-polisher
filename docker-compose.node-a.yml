@@ -1,0 +1,120 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Laptop 2: Primary Application Node (Node A)
+# docker-compose.node-a.yml
+#
+# Services: FastAPI backend, Celery worker, PostgreSQL, Redis, Qdrant
+# This is the "heavy" node that runs all data stores.
+#
+# Usage:
+#   docker compose -f docker-compose.node-a.yml up -d
+#
+# Important:
+#   - Expose DB ports on 0.0.0.0 so Node B (Laptop 3) can connect
+#   - Set LAPTOP2_IP in your .env or replace below
+# ──────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── PostgreSQL ─────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: pp_node_a_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-prompt_db}
+    ports:
+      - "5432:5432"   # Exposed on LAN for Node B
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - node-a-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Redis ──────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: pp_node_a_redis
+    ports:
+      - "6379:6379"   # Exposed on LAN for Node B
+    volumes:
+      - redis_data:/data
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    networks:
+      - node-a-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ── Qdrant (Vector DB) ────────────────────────────────────────────────────
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: pp_node_a_qdrant
+    ports:
+      - "6333:6333"   # REST — Exposed on LAN for Node B
+      - "6334:6334"   # gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    networks:
+      - node-a-network
+    restart: unless-stopped
+
+  # ── FastAPI Backend (Node A) ───────────────────────────────────────────────
+  backend:
+    build: ./backend
+    container_name: pp_node_a_api
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      POSTGRES_SERVER: postgres
+      REDIS_HOST: redis
+      QDRANT_HOST: qdrant
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    networks:
+      - node-a-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ── Celery Worker (Node A) ─────────────────────────────────────────────────
+  celery_worker:
+    build: ./backend
+    container_name: pp_node_a_celery
+    command: celery -A app.core.celery_app worker --loglevel=info --concurrency=4
+    env_file: .env
+    environment:
+      POSTGRES_SERVER: postgres
+      REDIS_HOST: redis
+      QDRANT_HOST: qdrant
+    depends_on:
+      - backend
+    networks:
+      - node-a-network
+    restart: unless-stopped
+
+networks:
+  node-a-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:

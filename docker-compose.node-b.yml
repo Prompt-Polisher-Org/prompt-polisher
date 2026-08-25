@@ -1,0 +1,55 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Laptop 3: Secondary Application Node (Node B)
+# docker-compose.node-b.yml
+#
+# Services: FastAPI backend, Celery worker
+# This node has NO local data stores — it connects to Laptop 2's DB/Redis/Qdrant.
+#
+# Usage:
+#   1. Set NODE_A_IP in your .env (e.g., NODE_A_IP=192.168.1.102)
+#   2. docker compose -f docker-compose.node-b.yml up -d
+#
+# Important:
+#   - POSTGRES_SERVER, REDIS_HOST, QDRANT_HOST all point to Laptop 2's IP
+# ──────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── FastAPI Backend (Node B) ───────────────────────────────────────────────
+  backend:
+    build: ./backend
+    container_name: pp_node_b_api
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      # Point to Laptop 2's data stores over the LAN
+      POSTGRES_SERVER: ${NODE_A_IP:-192.168.1.102}
+      POSTGRES_PORT: "5432"
+      REDIS_HOST: ${NODE_A_IP:-192.168.1.102}
+      REDIS_PORT: "6379"
+      QDRANT_HOST: ${NODE_A_IP:-192.168.1.102}
+      QDRANT_PORT: "6333"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ── Celery Worker (Node B) ─────────────────────────────────────────────────
+  celery_worker:
+    build: ./backend
+    container_name: pp_node_b_celery
+    command: celery -A app.core.celery_app worker --loglevel=info --concurrency=4
+    env_file: .env
+    environment:
+      POSTGRES_SERVER: ${NODE_A_IP:-192.168.1.102}
+      POSTGRES_PORT: "5432"
+      REDIS_HOST: ${NODE_A_IP:-192.168.1.102}
+      REDIS_PORT: "6379"
+      QDRANT_HOST: ${NODE_A_IP:-192.168.1.102}
+      QDRANT_PORT: "6333"
+    depends_on:
+      - backend
+    restart: unless-stopped

@@ -1,0 +1,81 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Prometheus Configuration — Prompt Polisher
+#
+# Task: Week 9-10 / Monitoring
+#   [x] Scrape FastAPI metrics (Node A + B)
+#   [x] Scrape Nginx metrics
+#   [x] Scrape Redis metrics
+#   [x] Scrape PostgreSQL metrics
+#   [x] System metrics (node_exporter)
+#
+# Replace IPs with your actual static LAN IPs.
+# ──────────────────────────────────────────────────────────────────────────────
+
+global:
+  scrape_interval: 15s         # How often to scrape targets
+  evaluation_interval: 15s     # How often to evaluate rules
+  scrape_timeout: 10s
+
+# ── Alerting (Optional — connect to Alertmanager if deployed) ────────────────
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ["localhost:9093"]
+
+# ── Rule Files (Optional — define alerting rules here) ───────────────────────
+# rule_files:
+#   - "alert_rules.yml"
+
+# ── Scrape Targets ───────────────────────────────────────────────────────────
+scrape_configs:
+
+  # ── Prometheus self-monitoring ──────────────────────────────────────────────
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # ── FastAPI Backends ───────────────────────────────────────────────────────
+  # Expects a /metrics endpoint (use prometheus-fastapi-instrumentator)
+  - job_name: "fastapi"
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - "192.168.1.102:8000"   # Node A (Laptop 2)
+          - "192.168.1.103:8000"   # Node B (Laptop 3)
+        labels:
+          service: "prompt-polisher-api"
+
+  # ── Nginx (via nginx-prometheus-exporter or stub_status) ───────────────────
+  - job_name: "nginx"
+    static_configs:
+      - targets:
+          - "localhost:9113"       # nginx-prometheus-exporter sidecar
+        labels:
+          service: "nginx-lb"
+
+  # ── Redis (via redis_exporter) ─────────────────────────────────────────────
+  - job_name: "redis"
+    static_configs:
+      - targets:
+          - "192.168.1.102:9121"   # redis_exporter on Laptop 2
+        labels:
+          service: "redis"
+
+  # ── PostgreSQL (via postgres_exporter) ─────────────────────────────────────
+  - job_name: "postgres"
+    static_configs:
+      - targets:
+          - "192.168.1.102:9187"   # postgres_exporter on Laptop 2
+        labels:
+          service: "postgres"
+
+  # ── Node Exporter (system CPU/RAM/disk per laptop) ─────────────────────────
+  - job_name: "node"
+    static_configs:
+      - targets:
+          - "192.168.1.101:9100"   # Laptop 1 (LB)
+          - "192.168.1.102:9100"   # Laptop 2 (Node A)
+          - "192.168.1.103:9100"   # Laptop 3 (Node B)
+          - "192.168.1.104:9100"   # Laptop 4 (Client / optional)
+        labels:
+          service: "system"
