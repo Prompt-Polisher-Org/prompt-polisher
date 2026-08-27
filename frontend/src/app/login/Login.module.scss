@@ -1,3 +1,5 @@
+@use '../../../styles/mixins' as *;
+
 .container {
   display: flex;
   align-items: center;
@@ -6,6 +8,7 @@
   background: var(--bg-primary, #0f172a);
   position: relative;
   overflow: hidden;
+  padding: 1rem; // Add safe padding for mobile devices
 
   // Background decorative elements
   &::before, &::after {
@@ -14,6 +17,10 @@
     border-radius: 50%;
     filter: blur(80px);
     z-index: 0;
+
+    @include mobile {
+      filter: blur(60px);
+    }
   }
 
   &::before {
@@ -22,6 +29,11 @@
     background: rgba(99, 102, 241, 0.15); // Indigo
     top: -100px;
     left: -100px;
+
+    @include mobile {
+      width: 250px;
+      height: 250px;
+    }
   }
 
   &::after {
@@ -30,6 +42,11 @@
     background: rgba(236, 72, 153, 0.15); // Pink
     bottom: -50px;
     right: -50px;
+
+    @include mobile {
+      width: 200px;
+      height: 200px;
+    }
   }
 }
 
@@ -46,11 +63,20 @@
   border-radius: 24px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
   color: white;
+
+  @include mobile {
+    padding: 2rem 1.5rem;
+    border-radius: 20px;
+  }
 }
 
 .header {
   text-align: center;
   margin-bottom: 2rem;
+
+  @include mobile {
+    margin-bottom: 1.5rem;
+  }
 
   h1 {
     font-size: 1.75rem;
@@ -59,11 +85,19 @@
     background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+
+    @include mobile {
+      font-size: 1.5rem;
+    }
   }
 
   p {
     color: #94a3b8;
     font-size: 0.95rem;
+
+    @include mobile {
+      font-size: 0.875rem;
+    }
   }
 }
 
@@ -178,6 +212,11 @@
 .socialButtons {
   display: flex;
   gap: 1rem;
+
+  @include mobile {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
 }
 
 .socialBtn {
@@ -211,6 +250,10 @@
   margin-top: 2rem;
   font-size: 0.875rem;
   color: #94a3b8;
+
+  @include mobile {
+    margin-top: 1.5rem;
+  }
 
   a {
     color: #818cf8;

@@ -11,23 +11,23 @@ export default function Home() {
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-accent/10 blur-[120px] pointer-events-none" />
 
-      <div className="z-10 max-w-5xl w-full flex flex-col items-center text-center gap-8 animate-fadeIn">
+      <div className="z-10 max-w-5xl w-full flex flex-col items-center text-center gap-6 sm:gap-8 animate-fadeIn">
         
         {/* Hero Section */}
-        <h1 className="text-5xl lg:text-7xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
+        <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent">
           Your AI Prompts,<br />Perfected.
         </h1>
         
-        <p className="text-xl text-text-secondary max-w-2xl leading-relaxed">
+        <p className="text-lg sm:text-xl text-text-secondary max-w-2xl leading-relaxed px-4">
           Transform rough ideas into expertly crafted instructions. 
           Prompt Polisher uses an advanced RLHF-tuned language model to optimize your prompts for maximum AI performance.
         </p>
 
-        <div className="flex gap-4 mt-4">
-          <Button size="lg" variant="primary">
+        <div className="flex flex-col sm:flex-row gap-4 mt-2 sm:mt-4 w-full sm:w-auto px-6 sm:px-0">
+          <Button size="lg" variant="primary" className="w-full sm:w-auto">
             Start Polishing
           </Button>
-          <Button size="lg" variant="ghost">
+          <Button size="lg" variant="ghost" className="w-full sm:w-auto">
             View Documentation
           </Button>
         </div>
