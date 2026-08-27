@@ -1,0 +1,67 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Laptop 1: Load Balancer + Monitoring
+# docker-compose.lb.yml
+#
+# Services: Nginx (load balancer), Prometheus (metrics), Grafana (dashboards)
+#
+# Usage:
+#   docker compose -f docker-compose.lb.yml up -d
+#
+# Requires:
+#   - infra/nginx/nginx-lb.conf  (production load balancing config)
+#   - infra/prometheus/prometheus.yml
+#   - Static IPs for Node A and Node B set via .env or below
+# ──────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── Nginx Load Balancer ────────────────────────────────────────────────────
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: pp_loadbalancer
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infra/nginx/nginx-lb.conf:/etc/nginx/nginx.conf:ro
+      - ./infra/nginx/ssl:/etc/nginx/ssl:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ── Prometheus (Metrics Collector) ─────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: pp_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=15d"
+    restart: unless-stopped
+
+  # ── Grafana (Dashboards & Alerting) ────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: pp_grafana
+    ports:
+      - "3001:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: promptpolisher
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  prometheus_data:
+  grafana_data:
