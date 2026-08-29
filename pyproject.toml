@@ -26,3 +26,6 @@ indent-style = "space"
 [tool.pytest.ini_options]
 testpaths = ["backend/tests", "ai/tests"]
 asyncio_mode = "auto"
+
+[tool.pyright]
+extraPaths = ["backend"]
