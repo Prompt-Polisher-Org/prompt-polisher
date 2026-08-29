@@ -279,15 +279,15 @@
   - [x] Checkpoint saving (every N steps)
   - [x] Wandb / TensorBoard logging
   - [x] Validation loss tracking
-- [x] Run training:
-  - [x] Pre-train on general corpus (if training from scratch)
-  - [x] Fine-tune (SFT) on prompt pairs
-  - [x] Monitor loss curves
-  - [x] Select best checkpoint
-- [x] Evaluate model:
-  - [x] Calculate perplexity on test set
-  - [x] Calculate BLEU/ROUGE on prompt optimization
-  - [x] Manual evaluation: generate 20 sample outputs
+- [/] Run training:
+  - [/] Pre-train on general corpus (if training from scratch)
+  - [/] Fine-tune (SFT) on prompt pairs
+  - [/] Monitor loss curves
+  - [/] Select best checkpoint
+- [/] Evaluate model:
+  - [/] Calculate perplexity on test set
+  - [/] Calculate BLEU/ROUGE on prompt optimization
+  - [/] Manual evaluation: generate 20 sample outputs
 
 ### Inference Engine `🤖 AI`
 

@@ -74,3 +74,9 @@ htmlcov/
 .coverage
 .pytest_cache/
 .nyc_output/
+
+# Local zip files
+ai.zip
+
+# Local Datasets
+*.jsonl

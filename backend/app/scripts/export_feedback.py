@@ -11,6 +11,7 @@ from sqlalchemy.orm import selectinload
 from app.db.session import SessionLocal
 from app.models.feedback import Feedback
 from app.models.message import Message
+from app.models.session import ChatSession  # Required to resolve SQLAlchemy string relationship on Message
 
 async def export_dpo_dataset(output_path: str = "dpo_dataset.jsonl"):
     """
