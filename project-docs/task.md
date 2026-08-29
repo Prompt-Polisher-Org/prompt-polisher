@@ -14,10 +14,10 @@
 | AI Model & Inference | 5–6 | 104 | 103 | 🟡 99% |
 | RAG & Chat Experience | 7–8 | 71 | 65 | 🟡 92% |
 | System Integration | 9–10 | 82 | 35 | 🟡 43% |
-| RLHF & Optimization | 11–12 | 74 | 54 | 🟡 73% |
+| RLHF & Optimization | 11–12 | 74 | 55 | 🟡 74% |
 | Polish & Load Testing | 13 | 75 | 23 | 🟡 31% |
 | Cloud Deploy & Presentation | 14 | 60 | 0 | 🔴 0% |
-| **TOTAL** | **1–14** | **645** | **454** | **🟡 70%** |
+| **TOTAL** | **1–14** | **645** | **455** | **🟡 71%** |
 
 ---
 
@@ -652,7 +652,7 @@
 ### ✅ Week 11–12 Exit Criteria `👥 ALL`
 
 - [ ] Users can provide feedback on responses
-- [ ] DPO retraining pipeline runs end-to-end
+- [x] DPO retraining pipeline runs end-to-end
 - [ ] Retrained model shows measurable improvement
 - [ ] Response caching reduces load on model
 - [ ] Security audit complete with no critical findings
