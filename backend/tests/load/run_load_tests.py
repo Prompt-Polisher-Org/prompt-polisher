@@ -70,7 +70,7 @@ def main():
             run_level(level)
         else:
             print(f"Unknown level: {target}")
-            print(f"Available: {', '.join(l['name'] for l in LEVELS)}")
+            print(f"Available: {', '.join(str(l['name']) for l in LEVELS)}")
             sys.exit(1)
     else:
         # Run all levels sequentially
