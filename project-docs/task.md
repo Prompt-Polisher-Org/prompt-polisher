@@ -15,9 +15,9 @@
 | RAG & Chat Experience | 7–8 | 71 | 65 | 🟡 92% |
 | System Integration | 9–10 | 82 | 35 | 🟡 43% |
 | RLHF & Optimization | 11–12 | 74 | 54 | 🟡 73% |
-| Polish & Load Testing | 13 | 75 | 0 | 🔴 0% |
+| Polish & Load Testing | 13 | 75 | 6 | 🟡 8% |
 | Cloud Deploy & Presentation | 14 | 60 | 0 | 🔴 0% |
-| **TOTAL** | **1–14** | **645** | **431** | **🟡 67%** |
+| **TOTAL** | **1–14** | **645** | **437** | **🟡 68%** |
 
 ---
 
@@ -664,12 +664,12 @@
 
 ### Load Testing `⚙️ DO`
 
-- [ ] Write comprehensive Locust/k6 test scripts:
-  - [ ] User registration flow
-  - [ ] Login + token refresh flow
-  - [ ] Prompt generation flow (the critical path)
-  - [ ] Chat history browsing
-  - [ ] Concurrent WebSocket connections
+- [x] Write comprehensive Locust/k6 test scripts:
+  - [x] User registration flow
+  - [x] Login + token refresh flow
+  - [x] Prompt generation flow (the critical path)
+  - [x] Chat history browsing
+  - [x] Concurrent WebSocket connections
 - [ ] Run load tests at increasing levels:
   - [ ] 100 concurrent users — baseline
   - [ ] 500 concurrent users — moderate load
