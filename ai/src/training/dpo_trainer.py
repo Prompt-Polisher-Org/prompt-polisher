@@ -34,7 +34,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
 
-from ai.src.training.config import ModelConfig, get_base_config
+from ai.src.training.config import ModelConfig, get_small_config, get_base_config, get_large_config
 from ai.src.training.architecture import create_model
 
 logger = logging.getLogger(__name__)
@@ -495,9 +495,17 @@ if __name__ == "__main__":
     parser.add_argument("--lr", type=float, default=5e-6)
     parser.add_argument("--max_steps", type=int, default=2000)
     parser.add_argument("--batch_size", type=int, default=4)
+    parser.add_argument("--config", type=str, default="base", choices=["small", "base", "large"])
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
+
+    if args.config == "small":
+        model_config = get_small_config()
+    elif args.config == "large":
+        model_config = get_large_config()
+    else:
+        model_config = get_base_config()
 
     config = DPOConfig(
         feedback_data_path=args.feedback_data,
@@ -507,6 +515,7 @@ if __name__ == "__main__":
         learning_rate=args.lr,
         max_steps=args.max_steps,
         batch_size=args.batch_size,
+        model_config=model_config,
     )
 
     trainer = DPOTrainer(config)
