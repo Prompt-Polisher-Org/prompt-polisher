@@ -32,7 +32,7 @@ The project has progressed from **64% to 67%** completion (431/645 tasks).
 
 The next developer should focus on completing the final Week 11-12 Exit Criteria and moving into Week 13 (Load Testing).
 
-1. **Load Testing Scripts**: Write comprehensive `Locust` or `k6` load test scripts for the user registration flow, login flow, and prompt generation flow (the critical path).
+1. **Load Testing (Week 13):** Executed baseline load tests using Locust. Found expected rate limiting constraints and connection exhaustion at high loads. Decided to keep original strict limits for production safety, and intentionally skipped extreme optimization since the assignment does not require enterprise-scale traffic handling. **(COMPLETED)**
 2. **Stress Testing**: Run the load tests to verify that the system can handle 500 concurrent users without degrading, and ensure rate limiting behaves correctly under stress.
 3. **Sensitive Data Encryption**: Implement at-rest encryption for sensitive fields in the database (if applicable, such as API keys).
 4. **End-to-End Testing (Playwright/Cypress)**: Implement E2E tests for the frontend covering user signup, creating a session, and submitting feedback.

@@ -1,0 +1,13 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+POST,/auth/register [setup],HTTPError('429 Client Error: Too Many Requests for url: /auth/register [setup]'),41,2026-08-29T07:19:21Z,2026-08-29T07:19:25Z
+PUT,/users/me/preferences [UPDATE],CatchResponseError('Update prefs failed: 429'),68,2026-08-29T07:19:20Z,2026-08-29T07:20:11Z
+POST,/chat/sessions [CREATE],CatchResponseError('Create session failed: 429'),235,2026-08-29T07:19:20Z,2026-08-29T07:20:12Z
+POST,/inference/generate [CRITICAL],CatchResponseError('Generate failed: 429'),599,2026-08-29T07:19:20Z,2026-08-29T07:20:13Z
+POST,/auth/login,CatchResponseError('Login failed: 429'),149,2026-08-29T07:19:22Z,2026-08-29T07:20:12Z
+POST,/feedback [SUBMIT],CatchResponseError('Feedback failed: 429'),161,2026-08-29T07:19:22Z,2026-08-29T07:20:12Z
+POST,/auth/register,CatchResponseError('Registration failed: 500'),8,2026-08-29T07:19:20Z,2026-08-29T07:19:54Z
+GET,/users/me [GET],CatchResponseError('Get profile failed: 429'),159,2026-08-29T07:19:21Z,2026-08-29T07:20:12Z
+POST,/auth/register,CatchResponseError('Registration failed: 429'),216,2026-08-29T07:19:21Z,2026-08-29T07:20:13Z
+POST,/auth/register [setup],HTTPError('500 Server Error: Internal Server Error for url: /auth/register [setup]'),42,2026-08-29T07:19:20Z,2026-08-29T07:19:54Z
+POST,/auth/login,HTTPError('429 Client Error: Too Many Requests for url: /auth/login'),83,2026-08-29T07:19:20Z,2026-08-29T07:19:54Z
+GET,/chat/sessions [LIST],CatchResponseError('List sessions failed: 429'),379,2026-08-29T07:19:20Z,2026-08-29T07:20:12Z
