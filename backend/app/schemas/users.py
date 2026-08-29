@@ -3,14 +3,14 @@ schemas/users.py — Pydantic request/response models for the Users & Preference
 
 Task: Week 3-4 / User & Preferences API (task.md lines 149-165)
 """
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 
 # ── User schemas ──────────────────────────────────────────────────────────────
 
 class UpdateProfileRequest(BaseModel):
     """Body for PUT /api/v1/users/me"""
-    full_name: str | None = None
+    full_name: str | None = Field(None, min_length=1, max_length=255)
 
     model_config = {"json_schema_extra": {"example": {"full_name": "Alice Smith"}}}
 
@@ -53,7 +53,35 @@ class UpdatePreferenceRequest(BaseModel):
     verbosity: str | None = None
     target_model: str | None = None
     domain: str | None = None
-    custom_instructions: str | None = None
+    custom_instructions: str | None = Field(None, max_length=2000)
+
+    @field_validator("tone")
+    @classmethod
+    def validate_tone(cls, v: str | None) -> str | None:
+        if v is not None and v not in VALID_TONES:
+            raise ValueError(f"tone must be one of: {', '.join(sorted(VALID_TONES))}")
+        return v
+
+    @field_validator("verbosity")
+    @classmethod
+    def validate_verbosity(cls, v: str | None) -> str | None:
+        if v is not None and v not in VALID_VERBOSITY:
+            raise ValueError(f"verbosity must be one of: {', '.join(sorted(VALID_VERBOSITY))}")
+        return v
+
+    @field_validator("target_model")
+    @classmethod
+    def validate_target_model(cls, v: str | None) -> str | None:
+        if v is not None and v not in VALID_TARGET_MODELS:
+            raise ValueError(f"target_model must be one of: {', '.join(sorted(VALID_TARGET_MODELS))}")
+        return v
+
+    @field_validator("domain")
+    @classmethod
+    def validate_domain(cls, v: str | None) -> str | None:
+        if v is not None and v not in VALID_DOMAINS:
+            raise ValueError(f"domain must be one of: {', '.join(sorted(VALID_DOMAINS))}")
+        return v
 
     model_config = {"json_schema_extra": {
         "example": {

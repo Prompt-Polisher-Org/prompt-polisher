@@ -46,6 +46,13 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"⚠️  Qdrant unavailable ({e}) — RAG features disabled")
 
+    # ── Cache service bootstrap (Week 11-12) ───────────────────────────────
+    try:
+        from app.services.cache_service import cache_service
+        await cache_service.connect()
+    except Exception as e:
+        print(f"⚠️  Cache service unavailable ({e}) — response caching disabled")
+
     # ── Register signal handlers for graceful shutdown ─────────────────────
     shutdown_event = asyncio.Event()
 
@@ -75,7 +82,15 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             logger.warning(f"Error closing Redis: {e}")
 
-    # 2. Close AI inference client
+    # 2. Close cache service
+    try:
+        from app.services.cache_service import cache_service
+        await cache_service.close()
+        logger.info("✅ Cache service closed")
+    except Exception as e:
+        logger.warning(f"Error closing cache service: {e}")
+
+    # 3. Close AI inference client
     try:
         from app.services.ai_client import ai_client
         await ai_client.close()

@@ -1,13 +1,13 @@
 """
 schemas/chat.py — Pydantic request/response models for chat sessions and messages.
 """
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 
 # ── Session Schemas ────────────────────────────────────────────────────────────
 
 class SessionCreate(BaseModel):
-    title: str = "New Polishing Session"
+    title: str = Field("New Polishing Session", min_length=1, max_length=255)
 
 class SessionResponse(BaseModel):
     id: str

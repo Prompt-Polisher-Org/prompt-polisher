@@ -1,14 +1,15 @@
 """
 schemas/feedback.py — Pydantic models for user feedback on AI responses.
 """
-from pydantic import BaseModel
+from typing import Literal
+from pydantic import BaseModel, Field
 from datetime import datetime
 from uuid import UUID
 
 class FeedbackCreate(BaseModel):
     message_id: UUID
-    rating: int  # 1 for upvote, -1 for downvote
-    comment: str | None = None
+    rating: Literal[1, -1]  # Strictly 1 (thumbs up) or -1 (thumbs down)
+    comment: str | None = Field(None, max_length=1000)
 
 class FeedbackResponse(BaseModel):
     id: UUID
