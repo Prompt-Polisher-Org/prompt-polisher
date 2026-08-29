@@ -80,3 +80,7 @@ ai.zip
 
 # Local Datasets
 *.jsonl
+
+# Model Weights
+*.pt
+*.safetensors
