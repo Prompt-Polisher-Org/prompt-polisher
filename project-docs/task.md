@@ -654,9 +654,9 @@
 - [ ] Users can provide feedback on responses
 - [x] DPO retraining pipeline runs end-to-end
 - [ ] Retrained model shows measurable improvement
-- [ ] Response caching reduces load on model
-- [ ] Security audit complete with no critical findings
-- [ ] System handles 500 concurrent users
+- [x] Response caching reduces load on model
+- [x] Security audit complete with no critical findings
+- [x] System handles 500 concurrent users
 
 ---
 
