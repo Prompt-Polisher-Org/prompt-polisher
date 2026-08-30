@@ -241,7 +241,12 @@ def get_per_token_logps(model, input_ids, labels):
 
     # Per-token log probabilities
     log_probs = F.log_softmax(shift_logits, dim=-1)
-    per_token_logps = log_probs.gather(2, shift_labels.unsqueeze(2)).squeeze(2)
+    
+    # Prevent gather out-of-bounds on -100 labels
+    gather_indices = shift_labels.clone()
+    gather_indices[gather_indices == -100] = 0
+    
+    per_token_logps = log_probs.gather(2, gather_indices.unsqueeze(2)).squeeze(2)
 
     # Mask out ignored positions (-100)
     mask = (shift_labels != -100).float()
