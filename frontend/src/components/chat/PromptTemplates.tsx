@@ -8,6 +8,7 @@
  * [x] Animated card hover effects
  */
 
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   Code2, PenLine, Megaphone, GraduationCap, Lightbulb, FlaskConical,

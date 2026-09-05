@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { PageTransition } from '@/components/ui/PageTransition';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import styles from './Dashboard.module.scss';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -59,7 +60,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  const getInitials = (name: string | null) => {
+  const getInitials = (name?: string | null) => {
     if (!name) return 'U';
     return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
   };
@@ -80,7 +81,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <span className={styles.logoText}>Prompt Polisher</span>
         </div>
 
-        <nav className={styles.nav}>
+        <nav className={styles.nav} aria-label="Dashboard navigation">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -90,6 +91,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className={`${styles.navItem} ${isActive ? styles.active : ''}`}
                 title={!sidebarOpen ? item.label : undefined}
                 onClick={() => setMobileMenuOpen(false)}
+                aria-current={isActive ? 'page' : undefined}
               >
                 {item.icon}
                 <span className={styles.navLabel}>{item.label}</span>
@@ -105,6 +107,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className={styles.headerLeft}>
             <button 
               className={styles.menuBtn} 
+              aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+              aria-expanded={sidebarOpen}
               onClick={() => {
                 if (window.innerWidth <= 768) {
                   setMobileMenuOpen(!mobileMenuOpen);
@@ -113,16 +117,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 }
               }}
             >
-              <Menu size={20} />
+              <Menu size={20} aria-hidden="true" />
             </button>
             <h2 className="text-lg font-semibold md:hidden">Prompt Polisher</h2>
           </div>
 
           <div className={styles.headerRight}>
+            <ThemeToggle />
             <div className={styles.userDropdown}>
               <button 
                 className={styles.userBtn}
                 onClick={() => setDropdownOpen(!dropdownOpen)}
+                aria-label="User menu"
+                aria-haspopup="true"
+                aria-expanded={dropdownOpen}
               >
                 <div className={styles.avatar}>
                   {getInitials(user?.full_name)}
