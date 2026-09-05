@@ -1,41 +1,44 @@
-# Session Handover Summary (Batch 2)
+# Session Handover Summary (Batch 3)
 
 ## Tasks Completed in This Session
-The project has progressed from **64% to 67%** completion (431/645 tasks).
+The project has completed the **Frontend Final Polish 🎨 FE** phase and reached **70%** completion (452/645 tasks).
 
-### 1. Frontend Polish (Week 9-10)
-- **Page Transition Animations**: Built `PageTransition.tsx` using Framer Motion and integrated it into the dashboard layout to provide smooth fade-and-slide transitions between routes.
+### 1. Dark / Light Mode System (`🎨 FE`)
+- **`ThemeProvider.tsx`**: React context provider managing theme state (`light` / `dark`), persisting preference to `localStorage`, and updating the `data-theme` attribute on `<html>`. Includes `suppressHydrationWarning` on `layout.tsx` to eliminate hydration theme flicker.
+- **`ThemeToggle.tsx`**: Accessible, animated toggle button using Framer Motion (`AnimatePresence` icon rotation). Integrated into the navbar on both the landing page and dashboard.
 
-### 2. Performance Optimization (Week 11-12)
-- **Redis Response Caching**: Implemented `cache_service.py` to prevent redundant AI model calls. It caches responses for 1 hour using a SHA-256 hash of the prompt and parameters as the key.
-- **Cache Integration**: Updated `ai_client.py` to check the cache before hitting the inference server, and wired the cache service lifecycle into `main.py`.
-- **Database Query Optimization**: 
-  - Added indexes to heavily queried columns (`created_at`, `user_id`, `session_id`, `endpoint`, `rating`) across all models.
-  - Added composite indexes for common query patterns (e.g., filtering by user and sorting by time).
-  - Resolved N+1 query patterns by adding eager `selectin` loading to relationships (`ChatSession.messages`, `Message.session`).
-  - Generated and applied an Alembic migration (`a1b2c3d4e5f6`) to safely apply these indexes.
+### 2. Landing Page v2 (`🎨 FE`)
+- **Redesigned Landing Page (`src/app/page.tsx` & `page.module.scss`)**:
+  - **Navbar**: Sticky glassmorphic navbar with logo, navigation links, theme toggle, and auth buttons.
+  - **Hero Section**: Animated background gradient orbs, dot pattern, high-converting headline, primary/secondary CTAs, and live platform stat counters.
+  - **Features Grid**: 6-card interactive grid featuring hover effects, icon containers, and scroll-triggered fade-in animations via `IntersectionObserver`.
+  - **Testimonials Section**: User review cards with rating stars, avatars, names, and titles.
+  - **CTA Section**: Gradient background banner encouraging user signup.
+  - **Footer**: Multi-column links (Product, Resources, Company, Legal) and social links.
 
-### 3. Analytics (Week 11-12)
-- **Analytics Dashboard**: Built `frontend/src/app/dashboard/analytics/page.tsx` using Recharts. 
-  - Includes animated stat cards (Total Prompts, Avg Quality, Avg Session, Cache Hit Rate).
-  - Implemented 4 visualizations: Prompts over time (area chart), categories (donut pie), feedback quality trend (stacked bar), and session durations (line chart).
+### 3. Accessibility Audit — WCAG 2.1 AA (`🎨 FE`)
+- **Keyboard Navigation**: Prominent focus rings (`focus-visible:ring-2 focus-visible:ring-primary`) across all interactive buttons, links, and form elements.
+- **Skip Link**: Added `.skip-link` allowing keyboard/screen reader users to jump straight to `#main-content`.
+- **Screen Reader Compatibility**: ARIA attributes applied across components (`role="main"`, `role="navigation"`, `role="region"`, `aria-label`, `aria-expanded`, `aria-haspopup`, `aria-current="page"`).
+- **Reduced Motion**: Full support for `@media (prefers-reduced-motion: reduce)` in animations and SCSS transitions.
+- **Color Contrast**: Maintained a minimum 4.5:1 contrast ratio across both light and dark mode color tokens.
 
-### 4. Security Audit (Week 11-12)
-- **API Input Validation & Password Policy**: Hardened Pydantic schemas in `auth.py`, `chat.py`, `feedback.py`, and `users.py`. Added strict field validators, min/max length constraints, and a regex-based password strength policy.
-- **Dependency Vulnerability Scans**: 
-  - Ran `npm audit fix --force` on the frontend, resolving 8 high-severity vulnerabilities (mostly related to Next.js and underlying build tools).
-  - Ran `pip-audit` on the backend. Documented findings related to `langchain`, `transformers`, and `torch` (these should be reviewed before blindly updating to avoid breaking the ML pipeline).
+### 4. Performance Optimization (`🎨 FE`)
+- **Image Optimization**: Enabled automatic AVIF & WebP conversion, HTTP compression, and responsive device sizes in `next.config.ts`.
+- **Code Splitting**: Applied Next.js dynamic imports (`next/dynamic` with `ssr: false`) to heavy chart components (Recharts) on the Analytics page (`src/app/dashboard/analytics/page.tsx`), keeping initial JavaScript bundle light.
+- **Font Optimization**: Configured Google Fonts (Inter & JetBrains Mono) with `display: 'swap'` and CSS variables in root `layout.tsx`.
+- **SCSS Mixin Fixes**: Added responsive media query mixins (`mobile`, `tablet`) to `_mixins.scss` ensuring clean, error-free compilation.
 
 ---
 
-## What Needs to Be Done Next (Batch 3)
+## What Needs to Be Done Next (Batch 4)
 
-The next developer should focus on completing the final Week 11-12 Exit Criteria and moving into Week 13 (Load Testing).
+The next developer/session should focus on **Documentation `👥 ALL`** and **Week 13 Exit Criteria**:
 
-1. **Load Testing (Week 13):** Executed baseline load tests using Locust. Found expected rate limiting constraints and connection exhaustion at high loads. Decided to keep original strict limits for production safety, and intentionally skipped extreme optimization since the assignment does not require enterprise-scale traffic handling. **(COMPLETED)**
-2. **Stress Testing**: Run the load tests to verify that the system can handle 500 concurrent users without degrading, and ensure rate limiting behaves correctly under stress.
-3. **Sensitive Data Encryption**: Implement at-rest encryption for sensitive fields in the database (if applicable, such as API keys).
-4. **End-to-End Testing (Playwright/Cypress)**: Implement E2E tests for the frontend covering user signup, creating a session, and submitting feedback.
-5. **Review ML Dependencies**: Review the `pip-audit` findings for `langchain`, `transformers`, and `torch` and carefully test updates to patch vulnerabilities without breaking the DPO pipeline.
+1. **API Documentation**: Finalize OpenAPI/Swagger schemas and example responses for all backend endpoints.
+2. **Model Documentation**: Write Model Card (architecture, dataset, limits) and evaluation report for the fine-tuned model.
+3. **Infrastructure & Architecture Documentation**: Document network topology, deployment runbook, and system design diagrams.
+4. **Demo Video**: Record the 5-minute product walkthrough video covering registration, prompt polishing, RAG personalization, analytics, and dark mode.
+5. **Week 14 Cloud Deployment**: Proceed with final cloud deployment and presentation preparation.
 
-> Note: All changes from this session have been committed and pushed to the `feat/responsive-and-security` branch.
+> Note: All changes have been built and verified cleanly.
