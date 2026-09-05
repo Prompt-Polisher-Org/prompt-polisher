@@ -15,6 +15,7 @@ import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, User, Copy, Check, Timer, Hash, SplitSquareVertical } from 'lucide-react';
 import { PromptComparisonView } from './PromptComparisonView';
+import { FeedbackWidget } from './FeedbackWidget';
 
 export interface Message {
   id: string;
@@ -140,7 +141,7 @@ export function MessageBubble({ message, onStopGenerating }: MessageBubbleProps)
 
             {/* Action buttons — only on completed AI messages */}
             {isAi && !message.isStreaming && (
-              <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                 {/* Copy */}
                 <button
                   onClick={handleCopy}
@@ -182,6 +183,11 @@ export function MessageBubble({ message, onStopGenerating }: MessageBubbleProps)
               />
             )}
           </AnimatePresence>
+
+          {/* Feedback widget — shown on completed AI messages */}
+          {isAi && !message.isStreaming && (
+            <FeedbackWidget messageId={message.id} />
+          )}
         </div>
       </div>
     </motion.div>

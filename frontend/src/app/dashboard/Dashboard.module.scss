@@ -1,3 +1,5 @@
+@use '../../../styles/mixins' as *;
+
 .dashboardContainer {
   display: flex;
   height: 100vh;
@@ -12,7 +14,7 @@
   border-right: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
-  transition: width 0.3s ease;
+  transition: width 0.3s ease, left 0.3s ease;
   z-index: 20;
   
   &.collapsed {
@@ -27,13 +29,27 @@
     }
   }
 
-  @media (max-width: 768px) {
-    position: absolute;
-    left: -260px;
+  /* Mobile: sidebar is off-screen by default, slides in as overlay */
+  @include mobile {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: -280px;
+    width: 260px;
+    box-shadow: none;
     
     &.mobileOpen {
       left: 0;
-      width: 260px;
+      box-shadow: 8px 0 30px rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  /* Tablet: narrower sidebar */
+  @include tablet {
+    width: 220px;
+
+    &.collapsed {
+      width: 70px;
     }
   }
 }
@@ -45,6 +61,12 @@
   align-items: center;
   gap: 0.75rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  flex-shrink: 0;
+
+  @include mobile {
+    height: 60px;
+    padding: 0 1.25rem;
+  }
 
   .logoIcon {
     width: 32px;
@@ -54,6 +76,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
   }
 
   .logoText {
@@ -73,6 +96,10 @@
   flex-direction: column;
   gap: 0.5rem;
   overflow-y: auto;
+
+  @include mobile {
+    padding: 1rem 0.75rem;
+  }
 }
 
 .navItem {
@@ -96,6 +123,11 @@
     color: #818cf8;
     font-weight: 500;
   }
+
+  @include mobile {
+    padding: 0.875rem 1rem;
+    font-size: 0.95rem;
+  }
 }
 
 .mainContent {
@@ -103,6 +135,7 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  min-width: 0; /* Prevent flex overflow */
 }
 
 .header {
@@ -115,12 +148,26 @@
   background: rgba(15, 23, 42, 0.8);
   backdrop-filter: blur(12px);
   z-index: 10;
+  flex-shrink: 0;
+
+  @include mobile {
+    height: 56px;
+    padding: 0 1rem;
+  }
+
+  @include tablet {
+    padding: 0 1.5rem;
+  }
 }
 
 .headerLeft {
   display: flex;
   align-items: center;
   gap: 1rem;
+
+  @include mobile {
+    gap: 0.5rem;
+  }
 
   .menuBtn {
     background: transparent;
@@ -136,6 +183,12 @@
     &:hover {
       background: rgba(255, 255, 255, 0.1);
     }
+
+    /* Touch-friendly hit area on mobile */
+    @include mobile {
+      padding: 0.625rem;
+      margin: -0.25rem;
+    }
   }
 }
 
@@ -143,6 +196,10 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+
+  @include mobile {
+    gap: 0.5rem;
+  }
 }
 
 .userDropdown {
@@ -162,6 +219,15 @@
     &:hover {
       background: rgba(255, 255, 255, 0.1);
     }
+
+    /* Mobile: compact button, hide text */
+    @include mobile {
+      padding: 0.25rem;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      gap: 0;
+    }
   }
   
   .avatar {
@@ -175,11 +241,16 @@
     font-weight: 600;
     font-size: 0.875rem;
     color: white;
+    flex-shrink: 0;
   }
   
   .userText {
     font-size: 0.875rem;
     color: #e2e8f0;
+
+    @include mobile {
+      display: none;
+    }
   }
 }
 
@@ -196,6 +267,11 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+
+  @include mobile {
+    width: 180px;
+    right: -0.5rem;
+  }
   
   button {
     width: 100%;
@@ -230,6 +306,14 @@
   padding: 2rem;
   overflow-y: auto;
   position: relative;
+
+  @include mobile {
+    padding: 1rem;
+  }
+
+  @include tablet {
+    padding: 1.5rem;
+  }
 }
 
 .overlay {
@@ -239,7 +323,7 @@
   z-index: 15;
   display: none;
   
-  @media (max-width: 768px) {
+  @include mobile {
     display: block;
   }
 }

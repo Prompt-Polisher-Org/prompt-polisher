@@ -1,0 +1,11 @@
+| Phase | Weeks | Total Tasks | Completed | Progress |
+|---|---|---|---|---|
+| Foundation | 1–2 | 353 | 155 | 🟡 43% |
+| Auth & Database | 3–4 | 0 | 0 | 🔴 0% |
+| AI Model & Inference | 5–6 | 0 | 0 | 🔴 0% |
+| RAG & Chat Experience | 7–8 | 0 | 0 | 🔴 0% |
+| System Integration | 9–10 | 291 | 14 | 🟡 4% |
+| RLHF & Optimization | 11–12 | 0 | 0 | 🔴 0% |
+| Polish & Load Testing | 13 | 0 | 0 | 🔴 0% |
+| Cloud Deploy & Presentation | 14 | 0 | 0 | 🔴 0% |
+| **TOTAL** | **1–14** | **644** | **169** | **🟡 26%** |

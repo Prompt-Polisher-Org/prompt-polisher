@@ -15,7 +15,26 @@ class AIClient:
         self.client = httpx.AsyncClient(timeout=30.0)
     
     async def generate_sync(self, prompt: str, max_new_tokens: int = 512, temperature: float = 0.7) -> dict:
-        """Call the synchronous generation endpoint."""
+        """
+        Call the synchronous generation endpoint.
+        
+        Checks Redis cache first. On cache miss, calls the model
+        and stores the result for future identical requests.
+        """
+        # ── Check cache first ──────────────────────────────────────────────
+        try:
+            from app.services.cache_service import cache_service
+            cached = await cache_service.get_cached_response(
+                prompt, temperature, max_new_tokens
+            )
+            if cached is not None:
+                logger.info("Serving cached response")
+                cached["_cached"] = True  # Mark so the frontend knows
+                return cached
+        except Exception as e:
+            logger.debug(f"Cache lookup skipped: {e}")
+
+        # ── Call the model ─────────────────────────────────────────────────
         url = f"{self.base_url}/v1/generate"
         payload = {
             "prompt": prompt,
@@ -26,7 +45,18 @@ class AIClient:
         try:
             response = await self.client.post(url, json=payload)
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+
+            # ── Store in cache ─────────────────────────────────────────────
+            try:
+                from app.services.cache_service import cache_service
+                await cache_service.set_cached_response(
+                    prompt, result, temperature, max_new_tokens
+                )
+            except Exception as e:
+                logger.debug(f"Cache write skipped: {e}")
+
+            return result
         except httpx.HTTPError as e:
             logger.error(f"Error communicating with AI server: {e}")
             raise
@@ -58,3 +88,4 @@ class AIClient:
         await self.client.aclose()
 
 ai_client = AIClient()
+

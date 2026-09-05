@@ -17,6 +17,7 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
+import { PageTransition } from '@/components/ui/PageTransition';
 import styles from './Dashboard.module.scss';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -161,7 +162,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
 
         <div className={styles.contentArea}>
-          {children}
+          <PageTransition pathname={pathname}>
+            {children}
+          </PageTransition>
         </div>
       </main>
     </div>

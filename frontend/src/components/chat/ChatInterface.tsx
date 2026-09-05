@@ -176,10 +176,10 @@ export function ChatInterface() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-80px)] max-w-4xl mx-auto w-full">
+    <div className="flex flex-col h-[calc(100vh-60px)] md:h-[calc(100vh-80px)] max-w-4xl mx-auto w-full relative">
 
       {/* Message / Template area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+      <div className="flex-1 overflow-y-auto px-3 md:px-4 py-4 md:py-6 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
         {messages.length === 0 ? (
           /* ── Empty state: show template quick-starts ── */
           <div className="flex flex-col h-full">
