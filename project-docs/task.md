@@ -717,10 +717,10 @@
   - [x] All endpoints documented in Swagger
   - [x] Request/response examples for each endpoint
   - [x] Error response documentation
-- [ ] `🤖 AI` Model documentation:
-  - [ ] Model card (architecture, training data, limitations)
-  - [ ] Evaluation report (metrics, qualitative examples)
-  - [ ] Training reproduction instructions
+- [x] `🤖 AI` Model documentation:
+  - [x] Model card (architecture, training data, limitations)
+  - [x] Evaluation report (metrics, qualitative examples)
+  - [x] Training reproduction instructions
 - [ ] `⚙️ DO` Infrastructure documentation:
   - [ ] Network topology diagram
   - [ ] Deployment runbook (step-by-step)
