@@ -7,11 +7,13 @@ Task: Week 3-4 / User & Preferences API (task.md lines 158-163)
   [x] target_model (GPT-4, Claude, Gemini, General)
   [x] domain (marketing, coding, writing, general)
   [x] custom_instructions (free text)
+  [x] target_model_api_key (encrypted at rest)
 """
 from sqlalchemy import String, Text, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 from app.models.base import Base
+from app.core.encryption import EncryptedString
 import uuid
 
 
@@ -39,4 +41,10 @@ class UserPreference(Base):
     custom_instructions: Mapped[str | None] = mapped_column(Text, nullable=True)
     # Free-text field for any extra instructions
 
-    updated_at: Mapped[str] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+    # Encrypted at rest — stores user's third-party LLM API key securely
+    target_model_api_key: Mapped[str | None] = mapped_column(
+        EncryptedString(500), nullable=True
+    )
+
+    updated_at: Mapped[str] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+

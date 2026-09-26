@@ -643,9 +643,9 @@
 - [x] SQL injection prevention (parameterized queries verified)
 - [x] XSS prevention (output encoding, CSP headers)
 - [x] CSRF protection
-- [ ] Rate limiting verified under stress
+- [x] Rate limiting verified under stress
 - [x] Password policy enforcement (minimum strength)
-- [ ] Sensitive data encryption at rest
+- [x] Sensitive data encryption at rest
 - [x] API input validation (all Pydantic schemas reviewed)
 - [x] Dependency vulnerability scan (`pip audit`, `npm audit`)
 
