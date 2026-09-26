@@ -713,10 +713,10 @@
 
 ### Documentation `👥 ALL`
 
-- [ ] `🗄️ BE` API documentation finalization:
-  - [ ] All endpoints documented in Swagger
-  - [ ] Request/response examples for each endpoint
-  - [ ] Error response documentation
+- [x] `🗄️ BE` API documentation finalization:
+  - [x] All endpoints documented in Swagger
+  - [x] Request/response examples for each endpoint
+  - [x] Error response documentation
 - [ ] `🤖 AI` Model documentation:
   - [ ] Model card (architecture, training data, limitations)
   - [ ] Evaluation report (metrics, qualitative examples)
