@@ -690,26 +690,26 @@
 
 ### Frontend Final Polish `🎨 FE`
 
-- [ ] Dark / Light mode toggle:
-  - [ ] CSS variable switching
-  - [ ] Persist preference in localStorage
-  - [ ] Smooth transition animation
-- [ ] Landing page v2 (final version):
-  - [ ] Hero section with animated background
-  - [ ] Feature grid with hover effects
-  - [ ] Testimonials section (mock data)
-  - [ ] CTA section with gradient background
-  - [ ] Footer with links
-- [ ] Accessibility audit (WCAG 2.1 AA):
-  - [ ] Keyboard navigation for all interactive elements
-  - [ ] Screen reader compatibility (aria labels)
-  - [ ] Color contrast ratios (minimum 4.5:1)
-  - [ ] Focus indicators visible
-- [ ] Performance optimization:
-  - [ ] Lighthouse audit → score > 90
-  - [ ] Image optimization (WebP, lazy loading)
-  - [ ] Code splitting (dynamic imports)
-  - [ ] Font preloading
+- [x] Dark / Light mode toggle:
+  - [x] CSS variable switching
+  - [x] Persist preference in localStorage
+  - [x] Smooth transition animation
+- [x] Landing page v2 (final version):
+  - [x] Hero section with animated background
+  - [x] Feature grid with hover effects
+  - [x] Testimonials section (mock data)
+  - [x] CTA section with gradient background
+  - [x] Footer with links
+- [x] Accessibility audit (WCAG 2.1 AA):
+  - [x] Keyboard navigation for all interactive elements
+  - [x] Screen reader compatibility (aria labels)
+  - [x] Color contrast ratios (minimum 4.5:1)
+  - [x] Focus indicators visible
+- [x] Performance optimization:
+  - [x] Lighthouse audit → score > 90
+  - [x] Image optimization (WebP, lazy loading)
+  - [x] Code splitting (dynamic imports)
+  - [x] Font preloading
 
 ### Documentation `👥 ALL`
 

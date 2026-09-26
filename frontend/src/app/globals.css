@@ -1,7 +1,46 @@
 @import "tailwindcss";
 
 @import '../styles/_variables.scss';
-@import '../styles/_animations.scss';
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
 
 @theme {
   --color-primary: var(--color-primary);
@@ -27,7 +66,7 @@
   --font-mono: var(--font-mono);
 }
 
-/* Base Reset & Obsidian Dark Theme Application */
+/* ─── Base Reset & Theme Application ───────────────────────────────────────── */
 body {
   background-color: var(--color-bg-base);
   color: var(--color-text-primary);
@@ -45,7 +84,65 @@ body {
   box-sizing: border-box;
 }
 
-/* Custom Scrollbar */
+/* ─── Accessibility: Skip Navigation Link ───────────────────────────────────── */
+/* Screen reader / keyboard users can skip past the navigation to main content */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  transition: top 0.2s;
+
+  &:focus {
+    top: 1rem;
+  }
+}
+
+/* ─── Accessibility: Focus Visible Ring ─────────────────────────────────────── */
+/* Prominent keyboard focus indicator — meets WCAG 2.1 AA §2.4.7              */
+/* Only shows when navigating via keyboard (not mouse clicks)                 */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+
+/* Remove outline for mouse users who click */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ─── Accessibility: Reduced Motion ─────────────────────────────────────────── */
+/* Respects OS-level "Reduce motion" setting                                   */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── Animation Utilities ───────────────────────────────────────────────────── */
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+/* ─── Custom Scrollbar ───────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -63,3 +160,4 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
 }
+

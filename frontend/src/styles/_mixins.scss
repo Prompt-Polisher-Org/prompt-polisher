@@ -19,3 +19,24 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* ─── Responsive Breakpoint Mixins ─────────────────────────────────────────── */
+
+@mixin mobile {
+  @media (max-width: 767px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: 768px) and (max-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: 1025px) {
+    @content;
+  }
+}
+

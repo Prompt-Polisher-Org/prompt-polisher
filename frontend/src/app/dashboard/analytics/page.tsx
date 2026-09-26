@@ -1,27 +1,42 @@
 'use client';
 
 /**
- * Analytics Dashboard — Week 11-12
+ * Analytics Dashboard — Week 11-12 (updated: Week 13 Performance Optimization)
  *
- * Displays usage analytics with charts:
- * [x] Total prompts generated (line chart over time)
+ * [x] Total prompts generated (area chart over time)
  * [x] Most-used prompt categories (pie chart)
- * [x] Average response quality (from feedback)
- * [x] Session duration trends
- * [x] Chart library integration (Recharts)
+ * [x] Average response quality (stacked bar)
+ * [x] Session duration trends (line chart)
+ * [x] Recharts — dynamically imported to enable code splitting (Week 13)
  * [x] Animate chart rendering on page load
  */
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
-import {
-  LineChart, Line, AreaChart, Area, PieChart, Pie, Cell,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Legend,
-} from 'recharts';
 import {
   TrendingUp, MessageSquare, ThumbsUp, Clock, Zap, BarChart2,
 } from 'lucide-react';
+
+// ── Dynamic imports for code splitting ──────────────────────────────────────
+// Recharts is a heavy bundle (~250kb). Dynamic import with ssr:false keeps it
+// out of the initial page load, improving Time to Interactive significantly.
+
+const AreaChart = dynamic(() => import('recharts').then(m => ({ default: m.AreaChart })), { ssr: false });
+const Area = dynamic(() => import('recharts').then(m => ({ default: m.Area })), { ssr: false });
+const PieChart = dynamic(() => import('recharts').then(m => ({ default: m.PieChart })), { ssr: false });
+const Pie = dynamic(() => import('recharts').then(m => ({ default: m.Pie })), { ssr: false });
+const Cell = dynamic(() => import('recharts').then(m => ({ default: m.Cell })), { ssr: false });
+const BarChart = dynamic(() => import('recharts').then(m => ({ default: m.BarChart })), { ssr: false });
+const Bar = dynamic(() => import('recharts').then(m => ({ default: m.Bar })), { ssr: false });
+const LineChart = dynamic(() => import('recharts').then(m => ({ default: m.LineChart })), { ssr: false });
+const Line = dynamic(() => import('recharts').then(m => ({ default: m.Line })), { ssr: false });
+const XAxis = dynamic(() => import('recharts').then(m => ({ default: m.XAxis })), { ssr: false });
+const YAxis = dynamic(() => import('recharts').then(m => ({ default: m.YAxis })), { ssr: false });
+const CartesianGrid = dynamic(() => import('recharts').then(m => ({ default: m.CartesianGrid })), { ssr: false });
+const Tooltip = dynamic(() => import('recharts').then(m => ({ default: m.Tooltip })), { ssr: false });
+const ResponsiveContainer = dynamic(() => import('recharts').then(m => ({ default: m.ResponsiveContainer })), { ssr: false });
+const Legend = dynamic(() => import('recharts').then(m => ({ default: m.Legend })), { ssr: false });
 
 // ── Mock Data (replaced by API calls when backend is live) ─────────────────
 
@@ -89,17 +104,17 @@ function StatCard({ title, value, change, icon, gradient, delay = 0 }: StatCardP
           <p className="text-2xl font-bold text-white">{value}</p>
           {change && (
             <p className="text-xs text-emerald-400 mt-1 flex items-center gap-1">
-              <TrendingUp size={12} />
+              <TrendingUp size={12} aria-hidden="true" />
               {change}
             </p>
           )}
         </div>
-        <div className="p-2.5 rounded-xl bg-white/5 border border-white/10">
+        <div className="p-2.5 rounded-xl bg-white/5 border border-white/10" aria-hidden="true">
           {icon}
         </div>
       </div>
       {/* Decorative gradient blob */}
-      <div className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-white/5 blur-2xl" />
+      <div className="absolute -bottom-6 -right-6 w-24 h-24 rounded-full bg-white/5 blur-2xl" aria-hidden="true" />
     </motion.div>
   );
 }
@@ -109,7 +124,10 @@ function StatCard({ title, value, change, icon, gradient, delay = 0 }: StatCardP
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-lg bg-slate-800/95 border border-slate-700/50 px-3 py-2 shadow-xl backdrop-blur-sm">
+    <div
+      className="rounded-lg bg-slate-800/95 border border-slate-700/50 px-3 py-2 shadow-xl backdrop-blur-sm"
+      role="tooltip"
+    >
       <p className="text-xs text-slate-400 mb-1">{label}</p>
       {payload.map((entry: any, i: number) => (
         <p key={i} className="text-sm font-medium" style={{ color: entry.color }}>
@@ -142,7 +160,7 @@ export default function AnalyticsPage() {
         transition={{ duration: 0.3 }}
       >
         <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <BarChart2 size={24} className="text-indigo-400" />
+          <BarChart2 size={24} className="text-indigo-400" aria-hidden="true" />
           Analytics Dashboard
         </h1>
         <p className="text-sm text-slate-400 mt-1">
@@ -151,51 +169,60 @@ export default function AnalyticsPage() {
       </motion.div>
 
       {/* Stat Cards Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Prompts"
-          value="158"
-          change="+23% this week"
-          icon={<MessageSquare size={20} className="text-cyan-400" />}
-          gradient="from-cyan-500/10 to-blue-500/10"
-          delay={0}
-        />
-        <StatCard
-          title="Avg Quality"
-          value="87%"
-          change="+5% from last week"
-          icon={<ThumbsUp size={20} className="text-emerald-400" />}
-          gradient="from-emerald-500/10 to-teal-500/10"
-          delay={0.1}
-        />
-        <StatCard
-          title="Avg Session"
-          value="5.3 min"
-          change="+0.8 min"
-          icon={<Clock size={20} className="text-amber-400" />}
-          gradient="from-amber-500/10 to-orange-500/10"
-          delay={0.2}
-        />
-        <StatCard
-          title="Cache Hit Rate"
-          value={`${cacheStats.hit_rate || 42}%`}
-          change="Saves model calls"
-          icon={<Zap size={20} className="text-violet-400" />}
-          gradient="from-violet-500/10 to-purple-500/10"
-          delay={0.3}
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" role="list" aria-label="Key metrics">
+        <div role="listitem">
+          <StatCard
+            title="Total Prompts"
+            value="158"
+            change="+23% this week"
+            icon={<MessageSquare size={20} className="text-cyan-400" />}
+            gradient="from-cyan-500/10 to-blue-500/10"
+            delay={0}
+          />
+        </div>
+        <div role="listitem">
+          <StatCard
+            title="Avg Quality"
+            value="87%"
+            change="+5% from last week"
+            icon={<ThumbsUp size={20} className="text-emerald-400" />}
+            gradient="from-emerald-500/10 to-teal-500/10"
+            delay={0.1}
+          />
+        </div>
+        <div role="listitem">
+          <StatCard
+            title="Avg Session"
+            value="5.3 min"
+            change="+0.8 min"
+            icon={<Clock size={20} className="text-amber-400" />}
+            gradient="from-amber-500/10 to-orange-500/10"
+            delay={0.2}
+          />
+        </div>
+        <div role="listitem">
+          <StatCard
+            title="Cache Hit Rate"
+            value={`${cacheStats.hit_rate || 42}%`}
+            change="Saves model calls"
+            icon={<Zap size={20} className="text-violet-400" />}
+            gradient="from-violet-500/10 to-purple-500/10"
+            delay={0.3}
+          />
+        </div>
       </div>
 
-      {/* Charts Row 1 — Line Chart + Pie Chart */}
+      {/* Charts Row 1 — Area Chart + Pie Chart */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Prompts Over Time — Line Chart */}
+        {/* Prompts Over Time */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
           className="lg:col-span-2 rounded-2xl border border-slate-700/50 bg-slate-800/30 p-5"
+          aria-label="Prompts generated this week chart"
         >
-          <h3 className="text-sm font-semibold text-slate-300 mb-4">Prompts Generated This Week</h3>
+          <h2 className="text-sm font-semibold text-slate-300 mb-4">Prompts Generated This Week</h2>
           <ResponsiveContainer width="100%" height={250}>
             <AreaChart data={promptsOverTime}>
               <defs>
@@ -227,8 +254,9 @@ export default function AnalyticsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.3 }}
           className="rounded-2xl border border-slate-700/50 bg-slate-800/30 p-5"
+          aria-label="Prompt categories chart"
         >
-          <h3 className="text-sm font-semibold text-slate-300 mb-4">Prompt Categories</h3>
+          <h2 className="text-sm font-semibold text-slate-300 mb-4">Prompt Categories</h2>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie
@@ -267,8 +295,9 @@ export default function AnalyticsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.4 }}
           className="rounded-2xl border border-slate-700/50 bg-slate-800/30 p-5"
+          aria-label="Response quality trend chart"
         >
-          <h3 className="text-sm font-semibold text-slate-300 mb-4">Response Quality Trend</h3>
+          <h2 className="text-sm font-semibold text-slate-300 mb-4">Response Quality Trend</h2>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={feedbackTrend}>
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -306,8 +335,9 @@ export default function AnalyticsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.5 }}
           className="rounded-2xl border border-slate-700/50 bg-slate-800/30 p-5"
+          aria-label="Average session duration chart"
         >
-          <h3 className="text-sm font-semibold text-slate-300 mb-4">Avg Session Duration (minutes)</h3>
+          <h2 className="text-sm font-semibold text-slate-300 mb-4">Avg Session Duration (minutes)</h2>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={sessionDurations}>
               <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
