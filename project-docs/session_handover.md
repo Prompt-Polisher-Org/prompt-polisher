@@ -1,44 +1,59 @@
-# Session Handover Summary (Batch 3)
+# Session Handover Summary (Batch 4)
 
 ## Tasks Completed in This Session
-The project has completed the **Frontend Final Polish 🎨 FE** phase and reached **70%** completion (452/645 tasks).
+The project has progressed from **70% to ~74%** completion.
 
-### 1. Dark / Light Mode System (`🎨 FE`)
-- **`ThemeProvider.tsx`**: React context provider managing theme state (`light` / `dark`), persisting preference to `localStorage`, and updating the `data-theme` attribute on `<html>`. Includes `suppressHydrationWarning` on `layout.tsx` to eliminate hydration theme flicker.
-- **`ThemeToggle.tsx`**: Accessible, animated toggle button using Framer Motion (`AnimatePresence` icon rotation). Integrated into the navbar on both the landing page and dashboard.
+### 1. Sensitive Data Encryption at Rest (`🗄️ BE`)
+- **`backend/app/core/encryption.py`**: Created a full encryption module using the `cryptography` library's **Fernet** (AES-128-CBC + HMAC-SHA256). Includes:
+  - `encrypt_value()` / `decrypt_value()` helper functions.
+  - `EncryptedString` — a custom **SQLAlchemy TypeDecorator** that transparently encrypts data on write and decrypts on read.
+  - Key derived from `ENCRYPTION_KEY` env var (or falls back to `SECRET_KEY`).
+- **`backend/app/models/preference.py`**: Added `target_model_api_key` column using `EncryptedString(500)` so users can securely store third-party LLM API keys.
+- **`backend/app/schemas/users.py`**: Updated Pydantic schemas — API key is **write-only** (accepted on `PUT`, never returned in `GET`). A `has_api_key: bool` field tells the frontend if one is stored.
+- **`backend/app/api/v1/users.py`** and **`backend/app/services/user_service.py`**: Wired the new field through the API route and service layer.
 
-### 2. Landing Page v2 (`🎨 FE`)
-- **Redesigned Landing Page (`src/app/page.tsx` & `page.module.scss`)**:
-  - **Navbar**: Sticky glassmorphic navbar with logo, navigation links, theme toggle, and auth buttons.
-  - **Hero Section**: Animated background gradient orbs, dot pattern, high-converting headline, primary/secondary CTAs, and live platform stat counters.
-  - **Features Grid**: 6-card interactive grid featuring hover effects, icon containers, and scroll-triggered fade-in animations via `IntersectionObserver`.
-  - **Testimonials Section**: User review cards with rating stars, avatars, names, and titles.
-  - **CTA Section**: Gradient background banner encouraging user signup.
-  - **Footer**: Multi-column links (Product, Resources, Company, Legal) and social links.
+### 2. API Documentation (`🗄️ BE`)
+- **`docs/api-documentation.md`**: Wrote comprehensive documentation for all **25+ API endpoints** across 7 route groups (Auth, Users, Chat, Inference, Feedback, A/B Testing, Health). Each endpoint includes:
+  - HTTP method, path, and auth requirements.
+  - Full request/response JSON examples.
+  - Error codes and rate limiting details.
+- **`backend/app/main.py`**: Enhanced the FastAPI app with full **OpenAPI metadata** (description, version, contact, license, tag descriptions) so that `/docs` (Swagger UI) and `/redoc` look professional and complete.
 
-### 3. Accessibility Audit — WCAG 2.1 AA (`🎨 FE`)
-- **Keyboard Navigation**: Prominent focus rings (`focus-visible:ring-2 focus-visible:ring-primary`) across all interactive buttons, links, and form elements.
-- **Skip Link**: Added `.skip-link` allowing keyboard/screen reader users to jump straight to `#main-content`.
-- **Screen Reader Compatibility**: ARIA attributes applied across components (`role="main"`, `role="navigation"`, `role="region"`, `aria-label`, `aria-expanded`, `aria-haspopup`, `aria-current="page"`).
-- **Reduced Motion**: Full support for `@media (prefers-reduced-motion: reduce)` in animations and SCSS transitions.
-- **Color Contrast**: Maintained a minimum 4.5:1 contrast ratio across both light and dark mode color tokens.
+### 3. AI Model Card (`🤖 AI`)
+- **`docs/model-card.md`**: Created a detailed Model Card for the `PromptPolisherTransformer` covering:
+  - Architecture breakdown (RMSNorm, RoPE, SwiGLU, causal attention) with ASCII diagram.
+  - All 3 model presets (Small 22.9M / Base 42.1M / Large 110M).
+  - SFT training data sources (Dolly, Alpaca, Code Alpaca), hyperparameters, and hardware.
+  - DPO training details (beta, LR, reference model freezing).
+  - Tokenizer specs (SentencePiece BPE, 32K vocab).
+  - Evaluation metrics (Perplexity, BLEU, ROUGE-L) and how to run them.
+  - Known limitations, ethical considerations, and full reproduction instructions.
 
-### 4. Performance Optimization (`🎨 FE`)
-- **Image Optimization**: Enabled automatic AVIF & WebP conversion, HTTP compression, and responsive device sizes in `next.config.ts`.
-- **Code Splitting**: Applied Next.js dynamic imports (`next/dynamic` with `ssr: false`) to heavy chart components (Recharts) on the Analytics page (`src/app/dashboard/analytics/page.tsx`), keeping initial JavaScript bundle light.
-- **Font Optimization**: Configured Google Fonts (Inter & JetBrains Mono) with `display: 'swap'` and CSS variables in root `layout.tsx`.
-- **SCSS Mixin Fixes**: Added responsive media query mixins (`mobile`, `tablet`) to `_mixins.scss` ensuring clean, error-free compilation.
+### 4. DPO Trainer Bug Fixes (`🤖 AI`)
+- Fixed **CUDA gather out-of-bounds crash** caused by `-100` label indices being passed directly to `torch.gather()`. Labels are now clamped to 0 before gathering and masked out afterward.
+- Added `--config` CLI flag to `dpo_trainer.py` so users can select `small` / `base` / `large` model configs (previously it always defaulted to `base`, causing shape mismatches when loading a `small` SFT checkpoint).
 
 ---
 
-## What Needs to Be Done Next (Batch 4)
+## What Needs to Be Done Next (Batch 5)
 
-The next developer/session should focus on **Documentation `👥 ALL`** and **Week 13 Exit Criteria**:
+### Documentation (Remaining)
+1. **Infrastructure Documentation** (`⚙️ DO`): Network topology diagram, deployment runbook, and troubleshooting guide.
+2. **Frontend Documentation** (`🎨 FE`): Component library docs and design system reference.
+3. **Architecture Documentation** (`👥 ALL`): System design document with diagrams, technology rationale, and trade-off analysis.
 
-1. **API Documentation**: Finalize OpenAPI/Swagger schemas and example responses for all backend endpoints.
-2. **Model Documentation**: Write Model Card (architecture, dataset, limits) and evaluation report for the fine-tuned model.
-3. **Infrastructure & Architecture Documentation**: Document network topology, deployment runbook, and system design diagrams.
-4. **Demo Video**: Record the 5-minute product walkthrough video covering registration, prompt polishing, RAG personalization, analytics, and dark mode.
-5. **Week 14 Cloud Deployment**: Proceed with final cloud deployment and presentation preparation.
+### Week 13 Exit Criteria (Remaining)
+4. **Demo Video** (`👥 ALL`): Record 5-minute walkthrough (registration, preferences, prompt generation, RAG, feedback, dark mode, analytics).
 
-> Note: All changes have been built and verified cleanly.
+### Week 14: Cloud Deployment & Presentation
+5. **Cloud Deployment** (`⚙️ DO`): Domain, VPS, Docker production images, SSL, CI/CD pipeline.
+6. **Final Verification** (`👥 ALL`): Cross-browser testing, mobile testing, SSL Labs test.
+7. **Presentation** (`👥 ALL`): Slides, rehearsal, Q&A prep, final project report.
+
+### Reference Files
+- **What's left for humans:** See `project-docs/manual_tasks_remaining.md`
+- **API reference:** See `docs/api-documentation.md`
+- **AI model details:** See `docs/model-card.md`
+- **Full task tracker:** See `project-docs/task.md`
+
+> Note: All changes are on the `feat/encryption-and-docs` branch. Create a PR to merge into `main`.
