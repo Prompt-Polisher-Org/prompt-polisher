@@ -99,6 +99,7 @@ async def get_preferences(
         target_model=prefs.target_model,
         domain=prefs.domain,
         custom_instructions=prefs.custom_instructions,
+        has_api_key=bool(prefs.target_model_api_key),
     )
 
 
@@ -142,6 +143,7 @@ async def put_preferences(
         target_model=payload.target_model,
         domain=payload.domain,
         custom_instructions=payload.custom_instructions,
+        target_model_api_key=payload.target_model_api_key,
     )
 
     return PreferenceResponse(
@@ -150,4 +152,5 @@ async def put_preferences(
         target_model=prefs.target_model,
         domain=prefs.domain,
         custom_instructions=prefs.custom_instructions,
+        has_api_key=bool(prefs.target_model_api_key),
     )

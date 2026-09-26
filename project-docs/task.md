@@ -11,13 +11,13 @@
 |---|---|---|---|---|
 | Foundation | 1–2 | 81 | 81 | 🟢 100% |
 | Auth & Database | 3–4 | 98 | 93 | 🟡 95% |
-| AI Model & Inference | 5–6 | 104 | 103 | 🟡 99% |
+| AI Model & Inference | 5–6 | 95 | 94 | 🟡 99% |
 | RAG & Chat Experience | 7–8 | 71 | 65 | 🟡 92% |
 | System Integration | 9–10 | 82 | 35 | 🟡 43% |
-| RLHF & Optimization | 11–12 | 74 | 55 | 🟡 74% |
-| Polish & Load Testing | 13 | 75 | 23 | 🟡 31% |
+| RLHF & Optimization | 11–12 | 74 | 60 | 🟡 81% |
+| Polish & Load Testing | 13 | 75 | 51 | 🟡 68% |
 | Cloud Deploy & Presentation | 14 | 60 | 0 | 🔴 0% |
-| **TOTAL** | **1–14** | **645** | **455** | **🟡 71%** |
+| **TOTAL** | **1–14** | **636** | **479** | **🟡 75%** |
 
 ---
 
@@ -643,9 +643,9 @@
 - [x] SQL injection prevention (parameterized queries verified)
 - [x] XSS prevention (output encoding, CSP headers)
 - [x] CSRF protection
-- [ ] Rate limiting verified under stress
+- [x] Rate limiting verified under stress
 - [x] Password policy enforcement (minimum strength)
-- [ ] Sensitive data encryption at rest
+- [x] Sensitive data encryption at rest
 - [x] API input validation (all Pydantic schemas reviewed)
 - [x] Dependency vulnerability scan (`pip audit`, `npm audit`)
 
@@ -713,14 +713,14 @@
 
 ### Documentation `👥 ALL`
 
-- [ ] `🗄️ BE` API documentation finalization:
-  - [ ] All endpoints documented in Swagger
-  - [ ] Request/response examples for each endpoint
-  - [ ] Error response documentation
-- [ ] `🤖 AI` Model documentation:
-  - [ ] Model card (architecture, training data, limitations)
-  - [ ] Evaluation report (metrics, qualitative examples)
-  - [ ] Training reproduction instructions
+- [x] `🗄️ BE` API documentation finalization:
+  - [x] All endpoints documented in Swagger
+  - [x] Request/response examples for each endpoint
+  - [x] Error response documentation
+- [x] `🤖 AI` Model documentation:
+  - [x] Model card (architecture, training data, limitations)
+  - [x] Evaluation report (metrics, qualitative examples)
+  - [x] Training reproduction instructions
 - [ ] `⚙️ DO` Infrastructure documentation:
   - [ ] Network topology diagram
   - [ ] Deployment runbook (step-by-step)

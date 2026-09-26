@@ -34,12 +34,15 @@ VALID_DOMAINS = {"marketing", "coding", "writing", "general"}
 
 
 class PreferenceResponse(BaseModel):
-    """Full preference object returned to the client."""
+    """Full preference object returned to the client.
+    NOTE: target_model_api_key is intentionally excluded — API keys are write-only.
+    """
     tone: str
     verbosity: str
     target_model: str
     domain: str
     custom_instructions: str | None
+    has_api_key: bool = False  # Tells the frontend if an API key is stored
 
     model_config = {"from_attributes": True}
 
@@ -54,6 +57,7 @@ class UpdatePreferenceRequest(BaseModel):
     target_model: str | None = None
     domain: str | None = None
     custom_instructions: str | None = Field(None, max_length=2000)
+    target_model_api_key: str | None = Field(None, max_length=500, description="Third-party LLM API key (encrypted at rest, write-only)")
 
     @field_validator("tone")
     @classmethod
@@ -89,6 +93,7 @@ class UpdatePreferenceRequest(BaseModel):
             "verbosity": "concise",
             "target_model": "GPT-4",
             "domain": "coding",
-            "custom_instructions": "Always add code examples."
+            "custom_instructions": "Always add code examples.",
+            "target_model_api_key": "sk-abc123..."
         }
     }}

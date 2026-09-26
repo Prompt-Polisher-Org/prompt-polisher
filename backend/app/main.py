@@ -112,8 +112,41 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
+    description=(
+        "**Prompt Polisher** is an AI-powered prompt optimization system that transforms "
+        "raw, unoptimized prompts into highly effective ones using a custom-trained "
+        "Transformer model with RAG and DPO alignment.\n\n"
+        "## Features\n"
+        "- 🔐 JWT + OAuth 2.0 authentication (Google, GitHub)\n"
+        "- 🤖 Real-time AI prompt generation (REST + WebSocket streaming)\n"
+        "- 💬 Persistent chat sessions with message history\n"
+        "- ⚙️ User preferences (tone, verbosity, domain, target model)\n"
+        "- 👍 RLHF feedback collection for DPO retraining\n"
+        "- 📊 A/B testing framework for model comparison\n"
+        "- 🔒 AES Fernet encryption for sensitive data at rest\n"
+        "- ⚡ Redis response caching + rate limiting\n"
+    ),
+    version="1.0.0",
+    contact={
+        "name": "Prompt Polisher Team",
+        "url": "https://github.com/Prompt-Polisher-Org/prompt-polisher",
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+    },
     docs_url="/docs",
     redoc_url="/redoc",
+    openapi_tags=[
+        {"name": "Health", "description": "Server health and readiness checks."},
+        {"name": "Authentication", "description": "User registration, login (email/password + OAuth 2.0), token refresh, and logout."},
+        {"name": "Users", "description": "User profile management and prompt preferences (including encrypted API key storage)."},
+        {"name": "Chat", "description": "Chat session CRUD and message history retrieval."},
+        {"name": "Inference", "description": "AI prompt generation via REST or WebSocket streaming."},
+        {"name": "Feedback & Analytics", "description": "Submit thumbs up/down feedback on AI responses, view stats, and export RLHF training data."},
+        {"name": "A/B Testing", "description": "Create experiments to compare model versions and track user satisfaction metrics."},
+        {"name": "Prompts", "description": "Prompt template management and history."},
+    ],
     lifespan=lifespan,
 )
 

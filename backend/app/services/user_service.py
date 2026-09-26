@@ -70,6 +70,7 @@ async def update_preferences(
     target_model: str | None = None,
     domain: str | None = None,
     custom_instructions: str | None = None,
+    target_model_api_key: str | None = None,
 ) -> UserPreference:
     """
     Update only the preference fields that are provided (not None).
@@ -88,6 +89,8 @@ async def update_preferences(
         prefs.domain = domain
     if custom_instructions is not None:
         prefs.custom_instructions = custom_instructions
+    if target_model_api_key is not None:
+        prefs.target_model_api_key = target_model_api_key
 
     await db.commit()
     await db.refresh(prefs)
