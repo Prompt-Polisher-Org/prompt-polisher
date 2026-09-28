@@ -335,7 +335,7 @@
   - [x] `GET /api/v1/chat/sessions/{id}/messages` — get messages
   - [x] `DELETE /api/v1/chat/sessions/{id}` — delete session
 - [x] Save messages to database after generation
-- [ ] Write inference + chat API tests
+- [x] Write inference + chat API tests
 
 ### Chat UI `🎨 FE`
 
@@ -623,10 +623,10 @@
   - [x] Add missing indexes
   - [x] Optimize N+1 query patterns
   - [x] Implement query result caching
-- [ ] `⚙️ DO` Docker image size optimization:
-  - [ ] Multi-stage builds
-  - [ ] Alpine base images where possible
-  - [ ] Remove dev dependencies from production image
+- [x] `⚙️ DO` Docker image size optimization:
+  - [x] Multi-stage builds
+  - [x] Alpine base images where possible
+  - [x] Remove dev dependencies from production image
 
 ### Analytics Dashboard `🎨 FE`
 
@@ -721,17 +721,17 @@
   - [x] Model card (architecture, training data, limitations)
   - [x] Evaluation report (metrics, qualitative examples)
   - [x] Training reproduction instructions
-- [ ] `⚙️ DO` Infrastructure documentation:
-  - [ ] Network topology diagram
-  - [ ] Deployment runbook (step-by-step)
-  - [ ] Troubleshooting guide
-- [ ] `🎨 FE` Frontend documentation:
-  - [ ] Component library documentation
-  - [ ] Design system reference
-- [ ] `👥 ALL` Architecture documentation:
-  - [ ] System design document with all diagrams
-  - [ ] Technology decision rationale
-  - [ ] Trade-offs and alternatives considered
+- [x] `⚙️ DO` Infrastructure documentation:
+  - [x] Network topology diagram
+  - [x] Deployment runbook (step-by-step)
+  - [x] Troubleshooting guide
+- [x] `🎨 FE` Frontend documentation:
+  - [x] Component library documentation
+  - [x] Design system reference
+- [x] `👥 ALL` Architecture documentation:
+  - [x] System design document with all diagrams
+  - [x] Technology decision rationale
+  - [x] Trade-offs and alternatives considered
 - [ ] `👥 ALL` Record demo video (5 minutes):
   - [ ] User registration and onboarding
   - [ ] Setting preferences
