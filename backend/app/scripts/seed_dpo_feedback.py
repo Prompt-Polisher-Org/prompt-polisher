@@ -1,3 +1,13 @@
+"""
+seed_dpo_feedback.py — Seed mock RLHF feedback for DPO training runs.
+
+Distinct from scripts/seed_data.py, which seeds users, sessions and messages.
+This one adds the chosen/rejected feedback pairs the DPO trainer consumes.
+
+Usage:
+    cd backend
+    python -m app.scripts.seed_dpo_feedback
+"""
 import asyncio
 import sys
 import os

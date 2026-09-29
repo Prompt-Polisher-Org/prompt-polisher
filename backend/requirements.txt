@@ -1,15 +1,39 @@
+# Backend dependencies — FastAPI API, Celery workers and tests.
+#
+# Install:
+#     pip install -r backend/requirements.txt
+
+# ── Web framework ────────────────────────────────────────────────────────────
 fastapi[all]
-uvicorn
+uvicorn[standard]
+
+# ── Database ─────────────────────────────────────────────────────────────────
 sqlalchemy[asyncio]>=2.0.0
 asyncpg
 alembic
+
+# ── Config & validation ──────────────────────────────────────────────────────
 pydantic-settings
 python-dotenv
-passlib[bcrypt]
-python-jose[cryptography]
 email-validator
+
+# ── Auth & crypto ────────────────────────────────────────────────────────────
+bcrypt                  # app/core/security.py — password hashing
+python-jose[cryptography]
+cryptography            # app/core/encryption.py — Fernet encryption at rest
+
+# ── Cache, queue & HTTP ──────────────────────────────────────────────────────
 redis
 httpx
 celery[redis]
+
+# ── RAG ──────────────────────────────────────────────────────────────────────
+numpy
 sentence-transformers>=2.7.0
 qdrant-client>=1.9.0
+
+# ── Tests & load testing ─────────────────────────────────────────────────────
+pytest
+pytest-asyncio
+aiosqlite              # tests/conftest.py runs against in-memory SQLite
+locust

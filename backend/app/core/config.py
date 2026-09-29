@@ -50,6 +50,13 @@ class Settings(BaseSettings):
     def REDIS_URL(self) -> str:
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
 
-    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True, extra="ignore")
+    # Look for .env at the repo root first, then inside backend/, so the app
+    # picks up the same file whether you run `uvicorn` from the repo root or
+    # from backend/. A backend/.env wins over the root one when both exist.
+    model_config = SettingsConfigDict(
+        env_file=("../.env", ".env"),
+        case_sensitive=True,
+        extra="ignore",
+    )
 
 settings = Settings()

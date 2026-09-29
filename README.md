@@ -83,7 +83,7 @@ prompt-polisher/
 ├── backend/           # FastAPI — API, auth, business logic
 ├── ai/                # PyTorch — Model training, inference, RAG
 ├── infra/             # Docker, Nginx, monitoring configs
-├── docs/              # Architecture docs, ADRs
+├── docs/              # Architecture, API, model card, demo prep
 ├── project-docs/      # Planning docs (roadmap, tasks, walkthrough)
 ├── docker-compose.yml # Start all services
 ├── .env.example       # Environment variable template
@@ -94,6 +94,9 @@ prompt-polisher/
 
 ## 🛠️ Quick Start
 
+> Running this for a demo? Follow **[docs/final_demo_prep.md](./docs/final_demo_prep.md)**
+> instead — it has the full checklist, run order and troubleshooting.
+
 ### Prerequisites
 
 - [Docker Desktop](https://docs.docker.com/get-docker/) (v24+)
@@ -101,32 +104,53 @@ prompt-polisher/
 - [Python](https://www.python.org/) (3.11+)
 - [Git](https://git-scm.com/)
 
-### 1. Clone & Configure
+### Option A — Everything in Docker (simplest)
 
 ```bash
-git clone https://github.com/YOUR_ORG/prompt-polisher.git
+git clone https://github.com/Prompt-Polisher-Org/prompt-polisher.git
 cd prompt-polisher
-cp .env.example .env
-# Edit .env with your values
+cp .env.example .env          # defaults work as-is for a local demo
+
+docker compose --profile full up -d --build
 ```
 
-### 2. Start Infrastructure
+Then apply the database migrations once the containers are up:
 
 ```bash
+docker compose exec backend alembic upgrade head
+```
+
+### Option B — Data stores in Docker, apps on the host (best for development)
+
+**1. Start the data stores**
+
+```bash
+cp .env.example .env
 docker compose up -d postgres redis qdrant
 ```
 
-### 3. Start Backend
+**2. Backend** (terminal 1)
 
 ```bash
 cd backend
 python -m venv venv
-venv\Scripts\activate        # Windows
+source venv/bin/activate      # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+alembic upgrade head
 uvicorn app.main:app --reload --port 8000
 ```
 
-### 4. Start Frontend
+**3. AI inference server** (terminal 2 — from the repo root)
+
+```bash
+pip install -r ai/requirements.txt
+uvicorn ai.src.inference.server:app --reload --port 8001
+```
+
+Without a trained checkpoint at `ai/models/checkpoints/final_model.pt` this
+serves clearly-labelled mock responses, so the rest of the stack still works.
+
+**4. Frontend** (terminal 3)
 
 ```bash
 cd frontend
@@ -134,10 +158,11 @@ npm install
 npm run dev
 ```
 
-### 5. Open in Browser
+### Open in Browser
 
 - Frontend: [http://localhost:3000](http://localhost:3000)
 - API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+- AI Inference health: [http://localhost:8001/health](http://localhost:8001/health)
 - Qdrant UI: [http://localhost:6333/dashboard](http://localhost:6333/dashboard)
 
 ---

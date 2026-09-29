@@ -86,10 +86,8 @@ def decrypt_value(ciphertext: str) -> str:
     except InvalidToken:
         logger.error("Failed to decrypt value — possible key mismatch or data corruption")
         raise ValueError("Decryption failed: invalid token or key mismatch")
-"""
+# ── SQLAlchemy Column Type ────────────────────────────────────────────────────
 
-Encrypted column type for SQLAlchemy models.
-"""
 from sqlalchemy import String, TypeDecorator
 
 
@@ -123,6 +121,3 @@ class EncryptedString(TypeDecorator):
             except ValueError:
                 return value  # Return raw if decryption fails (graceful degradation)
         return value
-"""
-Core encryption utilities are ready for use.
-"""

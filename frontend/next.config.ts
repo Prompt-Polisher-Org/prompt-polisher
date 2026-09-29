@@ -1,6 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Self-contained server bundle — required by frontend/Dockerfile,
+  // which copies .next/standalone and runs `node server.js`.
+  output: 'standalone',
+
   // Enable HTTP response compression
   compress: true,
 

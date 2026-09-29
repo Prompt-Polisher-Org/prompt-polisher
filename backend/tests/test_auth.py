@@ -135,7 +135,9 @@ async def test_login_wrong_password(client: AsyncClient):
         },
     )
     assert response.status_code == 401
-    assert "incorrect" in response.json()["detail"].lower()
+    # Deliberately identical to the unknown-email response so the endpoint does
+    # not reveal which accounts exist.
+    assert response.json()["detail"] == "Invalid email or password."
 
 
 @pytest.mark.asyncio
@@ -198,10 +200,11 @@ async def test_refresh_with_access_token_rejected(client: AsyncClient, auth_toke
 
 
 @pytest.mark.asyncio
-async def test_logout_returns_204(client: AsyncClient):
-    """Logout should return 204 No Content (stateless — client discards tokens)."""
+async def test_logout_returns_ok(client: AsyncClient):
+    """Logout is stateless — it confirms with 200 and the client discards its tokens."""
     response = await client.post("/api/v1/auth/logout")
-    assert response.status_code == 204
+    assert response.status_code == 200
+    assert "message" in response.json()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
