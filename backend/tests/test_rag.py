@@ -319,16 +319,34 @@ class TestRetrievalService:
 
     def test_retrieve_context_handles_qdrant_failure_gracefully(self):
         """If Qdrant is down, retrieval must return empty results (not raise)."""
+        from app.services import retrieval_service as retrieval_module
         from app.services.retrieval_service import retrieval_service
 
+        # Patch the Qdrant client itself, not search_preferences — patching the
+        # method under test would only exercise the mock, never its try/except.
         with patch.object(
-            retrieval_service, 'search_preferences',
+            retrieval_module.qdrant_service, 'search',
             side_effect=Exception("Qdrant connection refused")
+        ), patch.object(
+            retrieval_module.embedding_service, 'embed_text',
+            return_value=[0.0] * 384
         ):
-            # This shouldn't raise; search_preferences has try/except
             result = retrieval_service.search_preferences("user-123", "test query")
 
         assert result == []
+
+    def test_retrieve_context_handles_embedding_failure_gracefully(self):
+        """If the embedding model is unavailable, retrieval degrades instead of raising."""
+        from app.services import retrieval_service as retrieval_module
+        from app.services.retrieval_service import retrieval_service
+
+        with patch.object(
+            retrieval_module.embedding_service, 'embed_text',
+            side_effect=Exception("Embedding model not downloaded")
+        ):
+            assert retrieval_service.search_preferences("user-123", "q") == []
+            assert retrieval_service.search_history("user-123", "q") == []
+            assert retrieval_service.search_patterns("q") == []
 
     @pytest.mark.asyncio
     async def test_retrieve_context_async_returns_combined_context(self):

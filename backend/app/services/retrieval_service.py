@@ -65,7 +65,6 @@ class RetrievalService:
         Search the user's preference profile.
         Filtered to the current user only.
         """
-        query_vector = embedding_service.embed_text(query)
         user_filter = qdrant_models.Filter(
             must=[
                 qdrant_models.FieldCondition(
@@ -75,6 +74,7 @@ class RetrievalService:
             ]
         )
         try:
+            query_vector = embedding_service.embed_text(query)
             hits = qdrant_service.search(
                 collection_name=COLLECTION_USER_PREFERENCES,
                 query_vector=query_vector,
@@ -102,7 +102,6 @@ class RetrievalService:
         Find the most semantically relevant past messages from this user.
         Filtered to the current user's chat history only.
         """
-        query_vector = embedding_service.embed_text(query)
         user_filter = qdrant_models.Filter(
             must=[
                 qdrant_models.FieldCondition(
@@ -112,6 +111,7 @@ class RetrievalService:
             ]
         )
         try:
+            query_vector = embedding_service.embed_text(query)
             hits = qdrant_service.search(
                 collection_name=COLLECTION_CHAT_HISTORY,
                 query_vector=query_vector,
@@ -139,7 +139,6 @@ class RetrievalService:
         Find the most relevant prompt templates from the shared prompt_patterns library.
         Optionally filtered by domain (coding, writing, marketing, etc.).
         """
-        query_vector = embedding_service.embed_text(query)
 
         domain_filter = None
         if domain and domain != "general":
@@ -152,6 +151,7 @@ class RetrievalService:
                 ]
             )
         try:
+            query_vector = embedding_service.embed_text(query)
             hits = qdrant_service.search(
                 collection_name=COLLECTION_PROMPT_PATTERNS,
                 query_vector=query_vector,

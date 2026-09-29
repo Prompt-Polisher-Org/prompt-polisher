@@ -11,26 +11,45 @@ Task: Week 3-4 / Authentication System (task.md lines 131-135)
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+import bcrypt
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.core.config import settings
 
 # ── Password Hashing ─────────────────────────────────────────────────────────
 
 # bcrypt is the gold-standard hashing algorithm for passwords.
-# The CryptContext handles all hashing and verification.
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+#
+# We call the `bcrypt` package directly rather than going through passlib:
+# passlib 1.7.4 probes `bcrypt.__about__.__version__`, which bcrypt 4.1+ removed,
+# and the resulting broken backend detection makes every hash() call fail with
+# "password cannot be longer than 72 bytes" — i.e. registration and login break
+# outright on a fresh install.
+
+# bcrypt only ever considers the first 72 bytes of a password. It used to
+# truncate silently; 5.x raises instead, so we truncate explicitly to keep the
+# previous behaviour (and stay compatible with hashes created earlier).
+_BCRYPT_MAX_BYTES = 72
+
+
+def _encode(plain_password: str) -> bytes:
+    """UTF-8 encode a password and clamp it to bcrypt's 72-byte input limit."""
+    return plain_password.encode("utf-8")[:_BCRYPT_MAX_BYTES]
 
 
 def hash_password(plain_password: str) -> str:
     """Hash a plain-text password using bcrypt. Never store plain passwords."""
-    return pwd_context.hash(plain_password)
+    return bcrypt.hashpw(_encode(plain_password), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a plain-text password against its bcrypt hash."""
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        return bcrypt.checkpw(_encode(plain_password), hashed_password.encode("utf-8"))
+    except (ValueError, TypeError):
+        # Malformed or non-bcrypt hash in the database — treat as a failed login
+        # rather than letting a 500 leak out of the auth endpoint.
+        return False
 
 
 # ── JWT Token Creation ────────────────────────────────────────────────────────

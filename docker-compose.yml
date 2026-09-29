@@ -1,21 +1,42 @@
+# ──────────────────────────────────────────────────────────────────────────────
+# Prompt Polisher — Local full-stack stack
+#
+# Data stores only (backend + frontend run on the host, best for development):
+#   docker compose up -d postgres redis qdrant
+#
+# Everything in containers (best for a demo):
+#   docker compose --profile full up -d --build
+#
+# Nginx is behind the `proxy` profile because it needs TLS certificates —
+# generate them first with infra/nginx/ssl/generate-ssl.sh (or .ps1 on Windows):
+#   docker compose --profile full --profile proxy up -d --build
+# ──────────────────────────────────────────────────────────────────────────────
+
 services:
-  # 1. PostgreSQL - For structured user data and auth
+  # 1. PostgreSQL — structured user data and auth
   postgres:
     image: postgres:16-alpine
     container_name: prompt_polisher_db
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: prompt_db
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-prompt_db}
     ports:
+      # Published on 5433 so it doesn't clash with a Postgres already installed
+      # on the host. Set POSTGRES_PORT=5433 in .env when the backend runs on the host.
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - prompt-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # 2. Redis - For fast semantic caching and Kafka/Queue logic
+  # 2. Redis — response cache, rate limiting and the Celery broker
   redis:
     image: redis:7-alpine
     container_name: prompt_polisher_redis
@@ -26,8 +47,13 @@ services:
     networks:
       - prompt-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
-  # 3. Qdrant - The Vector Database for your AI Prompts (RAG)
+  # 3. Qdrant — vector database backing RAG
   qdrant:
     image: qdrant/qdrant:latest
     container_name: prompt_polisher_qdrant
@@ -39,55 +65,117 @@ services:
     networks:
       - prompt-network
     restart: unless-stopped
-  # 4. FastAPI Backend (Commented out until code is written)
-  # backend:
-  #   build: ./backend
-  #   container_name: prompt_polisher_api
-  #   ports:
-  #     - "8000:8000"
-  #   env_file: .env
-  #   depends_on:
-  #     - postgres
-  #     - redis
-  #     - qdrant
-  #   networks:
-  #     - prompt-network
 
-  # 5. Next.js Frontend (Commented out until code is written)
-  # frontend:
-  #   build: ./frontend
-  #   container_name: prompt_polisher_ui
-  #   ports:
-  #     - "3000:3000"
-  #   depends_on:
-  #     - backend
-  #   networks:
-  #     - prompt-network
+  # 4. AI inference server — serves the custom transformer.
+  #    Falls back to mock responses when no checkpoint is present.
+  ai-inference:
+    build: ./ai
+    container_name: prompt_polisher_ai
+    profiles: ["full"]
+    ports:
+      - "8001:8001"
+    volumes:
+      # Mount trained artifacts read-only so a new checkpoint doesn't need a rebuild
+      - ./ai/models:/app/ai/models:ro
+    networks:
+      - prompt-network
+    restart: unless-stopped
 
-  # 6. Nginx — Reverse proxy + SSL termination + future load balancer
+  # 5. FastAPI backend
+  backend:
+    build: ./backend
+    container_name: prompt_polisher_api
+    profiles: ["full"]
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      # Container-to-container addresses override whatever .env says for host runs
+      POSTGRES_SERVER: postgres
+      POSTGRES_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_URL: redis://redis:6379/0
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+      AI_INFERENCE_SERVER_URL: http://ai-inference:8001
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    networks:
+      - prompt-network
+    restart: unless-stopped
+
+  # 6. Celery worker — embeddings and nightly DPO retraining
+  celery-worker:
+    build: ./backend
+    container_name: prompt_polisher_celery
+    profiles: ["full"]
+    command: celery -A app.core.celery_app worker --loglevel=info --concurrency=2
+    env_file: .env
+    environment:
+      POSTGRES_SERVER: postgres
+      POSTGRES_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_URL: redis://redis:6379/0
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
+      AI_INFERENCE_SERVER_URL: http://ai-inference:8001
+    depends_on:
+      - backend
+    networks:
+      - prompt-network
+    restart: unless-stopped
+
+  # 7. Next.js frontend
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Baked in at build time — NEXT_PUBLIC_* vars are inlined into the bundle,
+        # so this is the URL the browser calls, not a container address.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
+    container_name: prompt_polisher_ui
+    profiles: ["full"]
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - prompt-network
+    restart: unless-stopped
+
+  # 8. Nginx — reverse proxy + TLS termination
+  #    Requires certificates in infra/nginx/ssl/ and the `full` profile services,
+  #    which is why it sits behind its own profile.
   nginx:
     image: nginx:1.25-alpine
     container_name: prompt_polisher_nginx
+    profiles: ["proxy"]
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./infra/nginx/ssl:/etc/nginx/ssl:ro
-    # depends_on:
-    #   - backend
-    #   - frontend
+    depends_on:
+      - backend
+      - frontend
     networks:
       - prompt-network
     restart: unless-stopped
 
-
-  # Define the isolated bridge network for security
+# Isolated bridge network
 networks:
   prompt-network:
     driver: bridge
 
-# Define the hard drive spaces so data isn't lost when containers stop
+# Named volumes so data survives container restarts
 volumes:
   postgres_data:
   redis_data:

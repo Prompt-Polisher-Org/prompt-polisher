@@ -54,8 +54,15 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
 
     return RegisterResponse(
-        message="Registration successful!",
-        user=UserResponse.model_validate(user),
+        message="Registration successful! Please log in.",
+        # User.id is a uuid.UUID and UserResponse.id is a str; pydantic v2 does
+        # not coerce between them, so convert explicitly (as the other routers do).
+        user=UserResponse(
+            id=str(user.id),
+            email=user.email,
+            full_name=user.full_name,
+            is_active=user.is_active,
+        ),
     )
 
 
