@@ -45,6 +45,21 @@ python -c "import torch; print(f'PyTorch {torch.__version__}, CUDA: {torch.cuda.
 jupyter lab --port=8888
 ```
 
+## Local Inference Artifacts
+
+Model weights and tokenizer files are gitignored and are not included in a fresh
+clone. In the repo-root `.env`, set paths to a checkpoint and tokenizer produced
+by the same training run:
+
+```dotenv
+AI_MODEL_CHECKPOINT_PATH=ai/models/checkpoints/final_model.pt
+AI_MODEL_TOKENIZER_PATH=ai/models/tokenizer/prompt_polisher_bpe.model
+```
+
+The inference server checks both files before loading. If either is missing, it
+starts in mock mode and reports `degraded (mock mode)` from `/health`. Docker
+Compose mounts the local `ai/models/` folder into the inference container.
+
 ## Project Structure
 
 ```

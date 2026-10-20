@@ -1,5 +1,5 @@
 # ──────────────────────────────────────────────────────────────────────────────
-# AI Worker Dockerfile — Multi-stage optimized build with model weights
+# AI Worker Dockerfile — Multi-stage optimized inference image
 #
 # Stage 1 (builder): Installs Python deps including PyTorch
 # Stage 2 (runtime): Slim image with only inference dependencies
@@ -30,7 +30,8 @@ RUN pip install --no-cache-dir --prefix=/install \
         sentencepiece \
         fastapi \
         "uvicorn[standard]" \
-        httpx
+        httpx \
+        python-dotenv
 
 # ── Stage 2: Runtime ─────────────────────────────────────────────────────────
 FROM python:3.12-slim AS runtime
@@ -49,7 +50,7 @@ COPY --from=builder /install /usr/local
 # Copy application code. The modules import each other as `ai.src.*`, so the
 # package has to live under an `ai/` directory on the import path.
 COPY src/ ./ai/src/
-COPY models/ ./ai/models/
+RUN mkdir -p ./ai/models/checkpoints ./ai/models/tokenizer
 
 # Switch to non-root user
 USER appuser
@@ -59,6 +60,6 @@ EXPOSE 8001
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
     CMD curl -f http://localhost:8001/health || exit 1
 
-# The server loads ai/models/checkpoints/final_model.pt if it is present and
-# falls back to mock responses if it is not, so this starts either way.
+# Model files are mounted by Compose at runtime. Without a complete checkpoint
+# and matching tokenizer bundle, the server starts in clearly labelled mock mode.
 CMD ["uvicorn", "ai.src.inference.server:app", "--host", "0.0.0.0", "--port", "8001"]

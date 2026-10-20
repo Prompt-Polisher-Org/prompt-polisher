@@ -149,6 +149,9 @@ uvicorn ai.src.inference.server:app --reload --port 8001
 
 Without a trained checkpoint at `ai/models/checkpoints/final_model.pt` this
 serves clearly-labelled mock responses, so the rest of the stack still works.
+To use different artifact names, set `AI_MODEL_CHECKPOINT_PATH` and
+`AI_MODEL_TOKENIZER_PATH` in the repo-root `.env`. The checkpoint and tokenizer
+must come from the same training run.
 
 **4. Frontend** (terminal 3)
 

@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Plus, MessageSquare, MoreHorizontal, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { Plus, MessageSquare, Trash2 } from 'lucide-react';
 
 interface Session {
   id: string;
@@ -23,7 +23,8 @@ export function SessionSidebar({ sessions, onNewChat, onSelectSession, onDeleteS
       
       {/* New Chat Button */}
       <div className="p-4">
-        <button 
+        <button
+          type="button"
           onClick={onNewChat}
           className="flex items-center justify-center w-full gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl transition-colors font-medium shadow-sm"
         >
@@ -63,7 +64,9 @@ export function SessionSidebar({ sessions, onNewChat, onSelectSession, onDeleteS
               </div>
               
               {hoveredId === session.id && (
-                <button 
+                <button
+                  type="button"
+                  aria-label={`Delete chat: ${session.title}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     onDeleteSession(session.id);

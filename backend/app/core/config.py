@@ -29,6 +29,8 @@ class Settings(BaseSettings):
 
     # Base URL for OAuth redirect callbacks (e.g. http://localhost:8000)
     OAUTH_REDIRECT_BASE_URL: str = "http://localhost:8000"
+    # Frontend destination after the provider callback returns.
+    FRONTEND_URL: str = "http://localhost:3000"
 
     # Redis Cache & Rate Limiting
     REDIS_HOST: str = "localhost"

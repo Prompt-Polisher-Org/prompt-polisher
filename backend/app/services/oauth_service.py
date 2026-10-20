@@ -36,7 +36,7 @@ GITHUB_EMAILS_URL = "https://api.github.com/user/emails"
 
 # ── Google OAuth Flow ─────────────────────────────────────────────────────────
 
-def get_google_auth_url() -> str:
+def get_google_auth_url(state: str) -> str:
     """
     Build the Google OAuth 2.0 consent screen URL.
     The user is redirected here to grant permission.
@@ -47,6 +47,7 @@ def get_google_auth_url() -> str:
         "redirect_uri": redirect_uri,
         "response_type": "code",
         "scope": "openid email profile",
+        "state": state,
         "access_type": "offline",
         "prompt": "consent",
     }
@@ -88,12 +89,13 @@ async def exchange_google_code(code: str) -> dict:
         "id": userinfo["id"],
         "email": userinfo["email"],
         "name": userinfo.get("name"),
+        "email_verified": userinfo.get("verified_email") is True,
     }
 
 
 # ── GitHub OAuth Flow ─────────────────────────────────────────────────────────
 
-def get_github_auth_url() -> str:
+def get_github_auth_url(state: str) -> str:
     """
     Build the GitHub OAuth authorization URL.
     The user is redirected here to grant permission.
@@ -103,6 +105,7 @@ def get_github_auth_url() -> str:
         "client_id": settings.GITHUB_CLIENT_ID,
         "redirect_uri": redirect_uri,
         "scope": "read:user user:email",
+        "state": state,
     }
     return f"{GITHUB_AUTH_URL}?{urlencode(params)}"
 
@@ -142,23 +145,22 @@ async def exchange_github_code(code: str) -> dict:
         user_response.raise_for_status()
         user_data = user_response.json()
 
-        # Step 3: Fetch primary email (GitHub users can hide their email)
-        email = user_data.get("email")
-        if not email:
-            emails_response = await client.get(GITHUB_EMAILS_URL, headers=auth_headers)
-            emails_response.raise_for_status()
-            emails = emails_response.json()
-            # Pick the primary verified email
-            primary = next(
-                (e for e in emails if e.get("primary") and e.get("verified")),
-                emails[0] if emails else None
-            )
-            email = primary["email"] if primary else None
+        # Step 3: Fetch a verified email. Linking an unverified address could
+        # let someone take over an existing password account.
+        emails_response = await client.get(GITHUB_EMAILS_URL, headers=auth_headers)
+        emails_response.raise_for_status()
+        emails = emails_response.json()
+        primary = next(
+            (item for item in emails if item.get("primary") and item.get("verified")),
+            next((item for item in emails if item.get("verified")), None),
+        )
+        email = primary["email"] if primary else None
 
     return {
         "id": str(user_data["id"]),
         "email": email,
         "name": user_data.get("name") or user_data.get("login"),
+        "email_verified": bool(primary),
     }
 
 

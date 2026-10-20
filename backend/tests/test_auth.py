@@ -13,6 +13,10 @@ Covers:
 """
 import pytest
 from httpx import AsyncClient
+from types import SimpleNamespace
+from unittest.mock import AsyncMock, patch
+from urllib.parse import parse_qs, urlparse
+import uuid
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -81,6 +85,75 @@ async def test_register_missing_password(client: AsyncClient):
         json={"email": "nopass@example.com"},
     )
     assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_google_oauth_start_includes_state_cookie_and_provider_state(client: AsyncClient):
+    """OAuth start must bind the provider redirect to a short-lived state cookie."""
+    with patch("app.api.v1.auth.settings.GOOGLE_CLIENT_ID", "test-client"), patch(
+        "app.api.v1.auth.settings.GOOGLE_CLIENT_SECRET", "test-secret"
+    ), patch(
+        "app.api.v1.auth.settings.OAUTH_REDIRECT_BASE_URL", "http://localhost:8000"
+    ):
+        response = await client.get("/api/v1/auth/oauth/google")
+
+    assert response.status_code == 302
+    provider_query = parse_qs(urlparse(response.headers["location"]).query)
+    state_cookie = response.cookies.get("prompt_polisher_oauth_google_state")
+    assert state_cookie
+    assert provider_query["state"] == [state_cookie]
+    assert provider_query["redirect_uri"][0].endswith(
+        "/api/v1/auth/oauth/google/callback"
+    )
+
+
+@pytest.mark.asyncio
+async def test_google_oauth_callback_rejects_mismatched_state(client: AsyncClient):
+    """A callback without the browser's state cookie must not exchange a code."""
+    response = await client.get(
+        "/api/v1/auth/oauth/google/callback",
+        params={"code": "untrusted-code", "state": "wrong-state"},
+    )
+
+    assert response.status_code == 302
+    assert "oauth_state_mismatch" in response.headers["location"]
+
+
+@pytest.mark.asyncio
+async def test_google_oauth_callback_returns_tokens_in_fragment(client: AsyncClient):
+    """Successful OAuth returns tokens to the frontend callback without a query string."""
+    with patch("app.api.v1.auth.settings.GOOGLE_CLIENT_ID", "test-client"), patch(
+        "app.api.v1.auth.settings.GOOGLE_CLIENT_SECRET", "test-secret"
+    ), patch(
+        "app.api.v1.auth.settings.OAUTH_REDIRECT_BASE_URL", "http://localhost:8000"
+    ), patch(
+        "app.api.v1.auth.settings.FRONTEND_URL", "http://localhost:3000"
+    ), patch(
+        "app.api.v1.auth.exchange_google_code",
+        new=AsyncMock(return_value={
+            "id": "google-user-1",
+            "email": "oauth@example.com",
+            "email_verified": True,
+            "name": "OAuth User",
+        }),
+    ), patch(
+        "app.api.v1.auth.get_or_create_oauth_user",
+        new=AsyncMock(return_value=SimpleNamespace(id=uuid.uuid4())),
+    ):
+        start_response = await client.get("/api/v1/auth/oauth/google")
+        state = parse_qs(urlparse(start_response.headers["location"]).query)["state"][0]
+        callback_response = await client.get(
+            "/api/v1/auth/oauth/google/callback",
+            params={"code": "test-code", "state": state},
+        )
+
+    assert callback_response.status_code == 302
+    location = urlparse(callback_response.headers["location"])
+    assert location.path == "/auth/callback"
+    assert not location.query
+    tokens = parse_qs(location.fragment)
+    assert tokens["access_token"]
+    assert tokens["refresh_token"]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

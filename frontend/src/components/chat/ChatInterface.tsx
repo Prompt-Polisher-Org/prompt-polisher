@@ -11,18 +11,44 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
+import { ChatInput } from './ChatInput';
+import { MessageBubble } from './MessageBubble';
+import type { Message } from './MessageBubble';
+import { PromptTemplates } from './PromptTemplates';
+import { api } from '@/lib/api';
 
 const uuidv4 = () => crypto.randomUUID();
-import { ChatInput } from './ChatInput';
-import { MessageBubble, Message } from './MessageBubble';
-import { PromptTemplates } from './PromptTemplates';
 
-export function ChatInterface() {
+interface ChatSession {
+  id: string;
+  title: string;
+  created_at: string;
+}
+
+interface StoredMessage {
+  id: string;
+  raw_content: string;
+  polished_content: string | null;
+  created_at: string;
+}
+
+interface ChatInterfaceProps {
+  sessionId: string | null;
+  resetKey: number;
+  onSessionCreated: (session: ChatSession) => void;
+}
+
+export function ChatInterface({ sessionId, resetKey, onSessionCreated }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [pendingTemplate, setPendingTemplate] = useState<string | undefined>(undefined);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(sessionId);
+  const [chatError, setChatError] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const selectedSessionRef = useRef<string | null>(sessionId);
+  const loadRequestRef = useRef(0);
+  const previousResetKeyRef = useRef(resetKey);
   // Track generation start time for elapsed-ms display
   const genStartRef = useRef<number>(0);
 
@@ -37,6 +63,66 @@ export function ChatInterface() {
       wsRef.current?.close();
     };
   }, []);
+
+  // Load persisted messages when the user opens a saved chat.
+  useEffect(() => {
+    if (sessionId === selectedSessionRef.current) {
+      setCurrentSessionId(sessionId);
+      return;
+    }
+
+    selectedSessionRef.current = sessionId;
+    const requestId = ++loadRequestRef.current;
+    wsRef.current?.close();
+    setIsGenerating(false);
+    setCurrentSessionId(sessionId);
+    setMessages([]);
+    setChatError('');
+
+    if (!sessionId) return;
+
+    api.get<StoredMessage[]>(`/chat/sessions/${sessionId}/messages`)
+      .then(({ data }) => {
+        if (requestId !== loadRequestRef.current) return;
+        const restored = data.flatMap((item): Message[] => {
+          const timestamp = new Date(item.created_at);
+          const prompt: Message = {
+            id: `${item.id}-user`,
+            role: 'user',
+            content: item.raw_content,
+            timestamp,
+          };
+          if (!item.polished_content) return [prompt];
+          return [prompt, {
+            id: `${item.id}-ai`,
+            role: 'ai',
+            content: item.polished_content,
+            timestamp,
+            originalPrompt: item.raw_content,
+          }];
+        });
+        setMessages(restored);
+      })
+      .catch(() => {
+        if (requestId === loadRequestRef.current) {
+          setChatError('Could not load this chat. Please try selecting it again.');
+        }
+      });
+  }, [sessionId]);
+
+  // An explicit New Chat click must clear the pane even when it is already blank.
+  useEffect(() => {
+    if (previousResetKeyRef.current === resetKey) return;
+    previousResetKeyRef.current = resetKey;
+    loadRequestRef.current += 1;
+    selectedSessionRef.current = null;
+    wsRef.current?.close();
+    setCurrentSessionId(null);
+    setMessages([]);
+    setPendingTemplate(undefined);
+    setChatError('');
+    setIsGenerating(false);
+  }, [resetKey]);
 
   // ── Stop Generating ──────────────────────────────────────────────────────
   const handleStopGenerating = () => {
@@ -58,46 +144,53 @@ export function ChatInterface() {
   };
 
   // ── Send Message ─────────────────────────────────────────────────────────
-  const handleSendMessage = (content: string) => {
+  const handleSendMessage = async (content: string) => {
     if (!content.trim() || isGenerating) return;
-
-    const userMessage: Message = {
-      id: uuidv4(),
-      role: 'user',
-      content,
-      timestamp: new Date(),
-    };
-
-    setMessages(prev => [...prev, userMessage]);
+    setChatError('');
     setIsGenerating(true);
     genStartRef.current = Date.now();
-
     const aiMessageId = uuidv4();
 
-    // Placeholder AI bubble (streaming)
-    setMessages(prev => [
-      ...prev,
-      {
-        id: aiMessageId,
-        role: 'ai',
-        content: '',
-        timestamp: new Date(),
-        isStreaming: true,
-        originalPrompt: content, // store so comparison view can diff
-      },
-    ]);
-
-    // ── WebSocket connection ─────────────────────────────────────────────
     try {
-      const sessionId = uuidv4();
-      const wsUrl = `ws://localhost:8000/api/v1/inference/ws/stream/${sessionId}`;
-      const ws = new WebSocket(wsUrl);
+      let targetSessionId = currentSessionId;
+      if (!targetSessionId) {
+        const { data: session } = await api.post<ChatSession>('/chat/sessions', {
+          title: content.replace(/\s+/g, ' ').slice(0, 60) || 'New Polishing Session',
+        });
+        targetSessionId = session.id;
+        selectedSessionRef.current = session.id;
+        setCurrentSessionId(session.id);
+        onSessionCreated(session);
+      }
+
+      const timestamp = new Date();
+      setMessages((previous) => [...previous,
+        { id: uuidv4(), role: 'user', content, timestamp },
+        {
+          id: aiMessageId,
+          role: 'ai',
+          content: '',
+          timestamp,
+          isStreaming: true,
+          originalPrompt: content,
+        },
+      ]);
+
+      const wsUrl = new URL(
+        api.defaults.baseURL || 'http://localhost:8000/api/v1',
+        window.location.origin,
+      );
+      wsUrl.protocol = wsUrl.protocol === 'https:' ? 'wss:' : 'ws:';
+      wsUrl.pathname = `${wsUrl.pathname.replace(/\/$/, '')}/inference/ws/stream/${encodeURIComponent(targetSessionId)}`;
+      wsUrl.search = '';
+      const ws = new WebSocket(wsUrl.toString());
       wsRef.current = ws;
 
       ws.onopen = () => {
         ws.send(
           JSON.stringify({
             prompt: content,
+            access_token: window.localStorage.getItem('access_token'),
             preferences_override: { temperature: 0.7 },
           }),
         );
@@ -132,7 +225,7 @@ export function ChatInterface() {
           ws.close();
         } else if (data.error) {
           console.error('WS error:', data.error);
-          handleError(aiMessageId);
+          handleError(aiMessageId, data.error);
         }
       };
 
@@ -154,18 +247,18 @@ export function ChatInterface() {
       };
     } catch (err) {
       console.error('Failed to initiate generation:', err);
-      handleError(aiMessageId);
+      setIsGenerating(false);
+      setChatError('Could not start this chat. Check that you are signed in and the backend is running.');
     }
   };
 
-  const handleError = (messageId: string) => {
+  const handleError = (messageId: string, detail?: string) => {
     setMessages(prev =>
       prev.map(msg =>
         msg.id === messageId
           ? {
               ...msg,
-              content:
-                msg.content + '\n\n*[Connection failed. Please try again.]*',
+              content: msg.content + `\n\n*${detail || 'Connection failed. Please try again.'}*`,
               isStreaming: false,
               generationMs: Date.now() - genStartRef.current,
             }
@@ -180,6 +273,11 @@ export function ChatInterface() {
 
       {/* Message / Template area */}
       <div className="flex-1 overflow-y-auto px-3 md:px-4 py-4 md:py-6 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+        {chatError && (
+          <p className="mb-4 text-center text-sm text-red-500" role="alert">
+            {chatError}
+          </p>
+        )}
         {messages.length === 0 ? (
           /* ── Empty state: show template quick-starts ── */
           <div className="flex flex-col h-full">
@@ -215,6 +313,7 @@ export function ChatInterface() {
       <div className="p-4 bg-slate-900/50 backdrop-blur-sm border-t border-slate-800/50 z-10">
         <div className="max-w-3xl mx-auto">
           <ChatInput
+            key={sessionId ?? `new-${resetKey}`}
             onSendMessage={handleSendMessage}
             isGenerating={isGenerating}
             externalValue={pendingTemplate}

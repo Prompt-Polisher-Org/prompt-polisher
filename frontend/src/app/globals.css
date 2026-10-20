@@ -75,6 +75,37 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* The dashboard and chat still use some Tailwind slate utilities. Re-map those
+   surfaces when light mode is selected so the theme control affects the whole
+   app instead of only the landing-page navbar and CSS-variable components. */
+html[data-theme="light"] [class*="bg-slate-950"],
+html[data-theme="light"] [class*="bg-slate-900"] {
+  background-color: #f1f5f9 !important;
+}
+
+html[data-theme="light"] [class*="bg-slate-800"] {
+  background-color: #ffffff !important;
+}
+
+html[data-theme="light"] [class*="bg-slate-700"] {
+  background-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] [class*="text-slate-200"],
+html[data-theme="light"] [class*="text-slate-300"] {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] [class*="text-slate-400"],
+html[data-theme="light"] [class*="text-slate-500"] {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] [class*="border-slate-700"],
+html[data-theme="light"] [class*="border-slate-800"] {
+  border-color: #cbd5e1 !important;
+}
+
 ::selection {
   background-color: var(--color-primary-transparent);
   color: var(--color-text-primary);

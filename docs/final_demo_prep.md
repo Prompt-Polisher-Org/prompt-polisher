@@ -9,31 +9,32 @@ and the **[Demo Script](#7-demo-script)** are the only two sections you need.
 
 ---
 
-## 1. What state the project is in
+## 1. Current project state
 
-### ✅ Working and demo-ready
+The repository contains the frontend, FastAPI backend, AI inference service,
+database migrations, and Docker Compose definitions. Recent fixes wire up the
+theme toggle, chat session lifecycle, auth restoration, OAuth callback flow,
+and configurable model artifact paths. Those changes still need a full run on a
+machine with Node, Python test dependencies, and a working Docker daemon before
+calling the stack demo-ready.
 
-| Area | Notes |
+| Area | Current state |
 |---|---|
-| Auth | Email/password register, login, JWT refresh, logout |
-| Chat | Session CRUD, message history, preferences |
-| Prompt optimization | REST + WebSocket token streaming |
-| RAG | Qdrant-backed preferences / history / prompt-pattern retrieval |
-| Feedback | Thumbs up/down, stats, RLHF export |
-| A/B testing | Experiments, stats, result rating |
-| Frontend | 9 routes, dark/light theme, production build clean |
-| Backend tests | 67 passing (`pytest`) |
-| Docker | Full stack builds and runs via Compose profiles |
+| Email/password auth | Implemented; needs an end-to-end local check |
+| Google/GitHub OAuth | Flow is implemented; requires provider credentials and registered callback URLs |
+| Chat sessions | Session create, reload, history, delete, and WebSocket auth are wired; needs live verification |
+| Trained inference | Requires a matching, trusted checkpoint and tokenizer. Without both, the AI service uses its labeled mock mode. |
+| Frontend build | Not verified in this environment because frontend dependencies are not installed. |
+| Backend tests | Not verified in this environment because `pytest` is not installed. |
+| Docker runtime | Compose configuration parses; container startup was not verified because this environment cannot access the Docker daemon. |
 
-### ⚠️ Known gaps — say these out loud before someone asks
+### Gaps to resolve before presenting
 
-| Gap | What to say |
+| Gap | Action |
 |---|---|
-| **No trained model checkpoint** | `ai/models/checkpoints/` is gitignored and empty. The inference server detects this and returns responses prefixed `MOCK:`. Every other layer — RAG, streaming, feedback, caching — is real. |
-| **No trained tokenizer** | Same: `ai/models/tokenizer/` is gitignored. Needed only if you load a real checkpoint. |
-| **OAuth not configured** | Google/GitHub buttons return `501 Not Implemented` until credentials are set in `.env`. **Demo with email/password.** |
-| **16 ESLint errors** | Mostly `no-explicit-any` and `react-hooks/set-state-in-effect`. They do not fail the production build. Don't run `npm run lint` on stage. |
-| **No CI workflow** | `.github/workflows/` does not exist yet. |
+| **No complete verified model bundle** | Checkpoints and tokenizer files are gitignored and are not supplied by a fresh clone. This development copy has an ignored `best_model.pt` but no matching tokenizer. Ask the model-training teammate for the exact checkpoint/tokenizer pair and verify it on the inference health endpoint. |
+| **OAuth credentials** | Add Google/GitHub client IDs and secrets to `.env` and register the callback URLs listed in `.env.example`. Until then, use email/password for the demo. |
+| **End-to-end verification** | Install frontend/backend dependencies, start Docker, run migrations, then work through the pre-flight list below. |
 
 ---
 
@@ -258,10 +259,11 @@ Roughly 6–8 minutes. Keep the browser at 100% zoom and hide bookmarks.
 | 11 | Theme toggle | Dark/light, bespoke design system — not a template. |
 | 12 | Swagger (`/docs`) | 23 documented endpoints, live try-it-out. Good place to end. |
 
-**If you have a trained checkpoint**, drop it at
-`ai/models/checkpoints/final_model.pt` (plus the tokenizer at
-`ai/models/tokenizer/`) and restart the AI server. `/health` flips from
-`degraded (mock mode)` to `healthy` — worth showing on screen.
+**If you have a trained checkpoint and its matching tokenizer**, put both files
+under `ai/models/`, set `AI_MODEL_CHECKPOINT_PATH` and
+`AI_MODEL_TOKENIZER_PATH` in the repo-root `.env`, and restart the AI server.
+`/health` flips from `degraded (mock mode)` to `healthy` after successful load.
+Do not pair artifacts from different training runs.
 
 **If you don't**, say so at step 4 before anyone notices the `MOCK:` prefix:
 *"the model checkpoint isn't loaded on this machine, so the AI server is serving
@@ -275,7 +277,7 @@ rigour; being caught reads as a bug.
 | Symptom | Cause | Fix |
 |---|---|---|
 | Page loads but is unstyled / black-on-black | Stale `.next` build from before the CSS variable fix | `rm -rf frontend/.next && npm run dev` |
-| `MOCK:` prefix on every response | No checkpoint at `ai/models/checkpoints/final_model.pt` | Expected. See §7. |
+| `MOCK:` prefix on every response | A configured checkpoint or its matching tokenizer is missing or failed to load | Check `AI_MODEL_CHECKPOINT_PATH` and `AI_MODEL_TOKENIZER_PATH`; see §7. |
 | Login returns 500 | Old `passlib`/`bcrypt` install in the venv | `pip install -r backend/requirements.txt --force-reinstall` |
 | `ModuleNotFoundError: ai.src...` | AI server started from the wrong directory | Run `uvicorn ai.src.inference.server:app` **from the repo root** |
 | Backend can't reach Postgres | Wrong port | Host runs use `5433`; containers use `postgres:5432` |

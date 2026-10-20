@@ -30,11 +30,10 @@ const ThemeContext = createContext<ThemeContextValue>({
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>('dark');
-  const [mounted, setMounted] = useState(false);
 
   // On mount: read preference from localStorage (or system preference)
   useEffect(() => {
-    const stored = localStorage.getItem('theme') as Theme | null;
+    const stored = window.localStorage.getItem('theme') as Theme | null;
     if (stored === 'light' || stored === 'dark') {
       setTheme(stored);
       document.documentElement.setAttribute('data-theme', stored);
@@ -45,25 +44,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setTheme(resolved);
       document.documentElement.setAttribute('data-theme', resolved);
     }
-    setMounted(true);
   }, []);
 
   const toggleTheme = () => {
-    const next: Theme = theme === 'dark' ? 'light' : 'dark';
+    // Read the DOM value as well as React state so the control remains usable
+    // during the first hydrated render, before the saved preference is loaded.
+    const current = document.documentElement.getAttribute('data-theme') as Theme | null;
+    const next: Theme = (current ?? theme) === 'dark' ? 'light' : 'dark';
     setTheme(next);
-    localStorage.setItem('theme', next);
+    window.localStorage.setItem('theme', next);
     document.documentElement.setAttribute('data-theme', next);
   };
-
-  // Avoid hydration mismatch: render children once mounted
-  if (!mounted) {
-    // Return a non-visible wrapper so layout is not broken during SSR
-    return (
-      <ThemeContext.Provider value={{ theme: 'dark', toggleTheme: () => {} }}>
-        {children}
-      </ThemeContext.Provider>
-    );
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
