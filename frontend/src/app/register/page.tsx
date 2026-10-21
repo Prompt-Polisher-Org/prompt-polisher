@@ -90,10 +90,10 @@ export default function RegisterPage() {
       </Link>
       <AnimatePresence mode="wait">
         {!isSuccess ? (
-          <motion.div 
+          <motion.div
             key="form"
             className={styles.card}
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.5 }}

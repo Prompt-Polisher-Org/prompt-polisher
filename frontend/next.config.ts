@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ['172.30.48.1', '192.168.*.*', '10.*.*.*'],
   // Self-contained server bundle — required by frontend/Dockerfile,
   // which copies .next/standalone and runs `node server.js`.
   output: 'standalone',

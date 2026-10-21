@@ -12,7 +12,7 @@ import styles from './Login.module.scss';
 export default function LoginPage() {
   const router = useRouter();
   const login = useAuthStore((state) => state.login);
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -26,7 +26,7 @@ export default function LoginPage() {
     try {
       // POST /api/v1/auth/login expects email and password
       const response = await api.post('/auth/login', { email, password });
-      
+
       // Store tokens and update state
       login({
         access_token: response.data.access_token,
@@ -66,15 +66,15 @@ export default function LoginPage() {
           <p>Pick up your ideas where you left them, refine the details, and keep your prompt work organized.</p>
           <div className={styles.storyPreview}>
             <span>ROUGH IDEA</span>
-            <p>“Help me explain this topic to a beginner.”</p>
+            <p>"Help me explain this topic to a beginner."</p>
             <div><ArrowRight size={15} /></div>
             <span>ADD CONTEXT · DEFINE THE AUDIENCE · SET THE FORMAT</span>
           </div>
           <span className={styles.storyFoot}>A little more structure can make a big difference.</span>
         </aside>
-      <motion.div 
+      <motion.div
         className={styles.card}
-        initial={{ opacity: 0, y: 20 }}
+        initial={false}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
       >
@@ -86,7 +86,7 @@ export default function LoginPage() {
         </div>
 
         {error && (
-          <motion.div 
+          <motion.div
             className={styles.error}
             role="alert"
             initial={{ opacity: 0, scale: 0.95 }}
@@ -99,10 +99,10 @@ export default function LoginPage() {
         <form className={styles.form} onSubmit={handleSubmit}>
           <div className={styles.inputGroup}>
             <label htmlFor="email">Email address</label>
-            <input 
+            <input
               id="email"
-              type="email" 
-              placeholder="you@example.com" 
+              type="email"
+              placeholder="you@example.com"
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -112,10 +112,10 @@ export default function LoginPage() {
 
           <div className={styles.inputGroup}>
             <label htmlFor="password">Password</label>
-            <input 
+            <input
               id="password"
-              type="password" 
-              placeholder="••••••••" 
+              type="password"
+              placeholder="••••••••"
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -123,8 +123,8 @@ export default function LoginPage() {
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className={styles.submitBtn}
             disabled={isLoading || !email || !password}
           >
