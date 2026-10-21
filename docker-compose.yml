@@ -74,6 +74,7 @@ services:
     profiles: ["full"]
     ports:
       - "8001:8001"
+    env_file: .env
     volumes:
       # Mount trained artifacts read-only so a new checkpoint doesn't need a rebuild
       - ./ai/models:/app/ai/models:ro

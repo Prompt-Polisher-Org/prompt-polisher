@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, WandSparkles } from 'lucide-react';
 import { api } from '@/lib/api';
 import styles from './Register.module.scss';
 
@@ -84,6 +84,10 @@ export default function RegisterPage() {
 
   return (
     <div className={styles.container}>
+      <Link href="/" className={styles.brand} aria-label="Prompt Polisher home">
+        <span className={styles.brandMark}><WandSparkles size={17} /></span>
+        <span>prompt<span>polisher</span></span>
+      </Link>
       <AnimatePresence mode="wait">
         {!isSuccess ? (
           <motion.div 
@@ -95,13 +99,15 @@ export default function RegisterPage() {
             transition={{ duration: 0.5 }}
           >
             <div className={styles.header}>
-              <h1>Create an account</h1>
-              <p>Start optimizing your AI prompts today</p>
+              <span className={styles.formEyebrow}>YOUR PROMPT WORKSPACE</span>
+              <h1>Create your account</h1>
+              <p>Start a workspace for clearer, more useful prompts.</p>
             </div>
 
             {error && (
               <motion.div 
                 className={styles.error}
+                role="alert"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
               >
@@ -116,6 +122,7 @@ export default function RegisterPage() {
                   id="name"
                   type="text" 
                   placeholder="Jane Doe" 
+                  autoComplete="name"
                   value={formData.name}
                   onChange={handleChange}
                   required
@@ -128,6 +135,7 @@ export default function RegisterPage() {
                   id="email"
                   type="email" 
                   placeholder="you@example.com" 
+                  autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
                   required
@@ -140,6 +148,7 @@ export default function RegisterPage() {
                   id="password"
                   type="password" 
                   placeholder="Create a strong password" 
+                  autoComplete="new-password"
                   value={formData.password}
                   onChange={handleChange}
                   required
@@ -158,6 +167,7 @@ export default function RegisterPage() {
                   id="confirmPassword"
                   type="password" 
                   placeholder="Confirm your password" 
+                  autoComplete="new-password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { ArrowRight, Loader2, Sparkles, WandSparkles } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/authStore';
 import styles from './Login.module.scss';
@@ -48,8 +48,30 @@ export default function LoginPage() {
     }
   };
 
+  const startOAuth = (provider: 'google' | 'github') => {
+    const apiBase = api.defaults.baseURL || 'http://localhost:8000/api/v1';
+    window.location.assign(`${apiBase.replace(/\/$/, '')}/auth/oauth/${provider}`);
+  };
+
   return (
     <div className={styles.container}>
+      <Link href="/" className={styles.brand} aria-label="Prompt Polisher home">
+        <span className={styles.brandMark}><WandSparkles size={17} /></span>
+        <span>prompt<span>polisher</span></span>
+      </Link>
+      <div className={styles.authShell}>
+        <aside className={styles.storyPanel}>
+          <span className={styles.storyEyebrow}><Sparkles size={14} /> PROMPT WORKSPACE</span>
+          <h2>Clearer prompts start with a better first draft.</h2>
+          <p>Pick up your ideas where you left them, refine the details, and keep your prompt work organized.</p>
+          <div className={styles.storyPreview}>
+            <span>ROUGH IDEA</span>
+            <p>“Help me explain this topic to a beginner.”</p>
+            <div><ArrowRight size={15} /></div>
+            <span>ADD CONTEXT · DEFINE THE AUDIENCE · SET THE FORMAT</span>
+          </div>
+          <span className={styles.storyFoot}>A little more structure can make a big difference.</span>
+        </aside>
       <motion.div 
         className={styles.card}
         initial={{ opacity: 0, y: 20 }}
@@ -57,13 +79,16 @@ export default function LoginPage() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
       >
         <div className={styles.header}>
+          <span className={styles.mobileMark}><WandSparkles size={17} /></span>
+          <span className={styles.formEyebrow}>WELCOME BACK</span>
           <h1>Welcome back</h1>
-          <p>Sign in to your Prompt Polisher account</p>
+          <p>Sign in to continue to your workspace.</p>
         </div>
 
         {error && (
           <motion.div 
             className={styles.error}
+            role="alert"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
           >
@@ -78,6 +103,7 @@ export default function LoginPage() {
               id="email"
               type="email" 
               placeholder="you@example.com" 
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -90,15 +116,12 @@ export default function LoginPage() {
               id="password"
               type="password" 
               placeholder="••••••••" 
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
-
-          <Link href="/forgot-password" className={styles.forgotPassword}>
-            Forgot password?
-          </Link>
 
           <button 
             type="submit" 
@@ -114,7 +137,7 @@ export default function LoginPage() {
         </div>
 
         <div className={styles.socialButtons}>
-          <button className={styles.socialBtn} type="button" onClick={() => alert('Google OAuth not implemented yet')}>
+          <button className={styles.socialBtn} type="button" onClick={() => startOAuth('google')}>
             <svg viewBox="0 0 24 24" fill="currentColor">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
               <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -123,7 +146,7 @@ export default function LoginPage() {
             </svg>
             Google
           </button>
-          <button className={styles.socialBtn} type="button" onClick={() => alert('GitHub OAuth not implemented yet')}>
+          <button className={styles.socialBtn} type="button" onClick={() => startOAuth('github')}>
             <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
               <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
             </svg>
@@ -135,6 +158,7 @@ export default function LoginPage() {
           Don't have an account? <Link href="/register">Sign up</Link>
         </div>
       </motion.div>
+      </div>
     </div>
   );
 }

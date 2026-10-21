@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,18 +24,20 @@ import styles from './Dashboard.module.scss';
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isAuthenticated, isLoading, logout, fetchCurrentUser } = useAuthStore();
+  const { user, isAuthenticated, isLoading, logout, initialize } = useAuthStore();
   
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const authInitializationStarted = useRef(false);
 
   useEffect(() => {
-    // Initial auth check if not already authenticated
-    if (!isAuthenticated && !isLoading) {
-      fetchCurrentUser();
+    // On a hard reload, restore the user from the access token in localStorage.
+    if (!isAuthenticated && isLoading && !authInitializationStarted.current) {
+      authInitializationStarted.current = true;
+      void initialize();
     }
-  }, [isAuthenticated, isLoading, fetchCurrentUser]);
+  }, [isAuthenticated, isLoading, initialize]);
 
   // Auth guard
   useEffect(() => {

@@ -13,18 +13,25 @@ Usage:
 """
 import asyncio
 import logging
+import os
+from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
 
 from ai.src.inference.engine import InferenceEngine, GenerationConfig
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Host runs load repo-root .env. Docker Compose injects the same variables via
+# env_file, so this is a no-op there when the file is not mounted.
+load_dotenv(Path(__file__).resolve().parents[3] / ".env")
 
 # FastAPI app
 app = FastAPI(title="Prompt Polisher Inference API", version="1.0.0")
@@ -65,17 +72,32 @@ class GenerateResponse(BaseModel):
 async def startup_event():
     """Load the model when the server starts."""
     global engine
-    # Hardcoded path for simplicity in this script; in prod use env vars
-    checkpoint_path = "ai/models/checkpoints/final_model.pt"
-    
-    import os
-    if not os.path.exists(checkpoint_path):
+    checkpoint_path = Path(os.getenv(
+        "AI_MODEL_CHECKPOINT_PATH",
+        "ai/models/checkpoints/final_model.pt",
+    ))
+    tokenizer_path = Path(os.getenv(
+        "AI_MODEL_TOKENIZER_PATH",
+        "ai/models/tokenizer/prompt_polisher_bpe.model",
+    ))
+
+    if not checkpoint_path.exists():
         logger.warning(f"Checkpoint {checkpoint_path} not found! Starting in dummy mode (MOCK responses).")
+        engine = None
+    elif not tokenizer_path.exists():
+        logger.warning(
+            "Tokenizer %s not found for checkpoint %s; starting in dummy mode (MOCK responses).",
+            tokenizer_path,
+            checkpoint_path,
+        )
         engine = None
     else:
         try:
             logger.info(f"Loading model from {checkpoint_path}...")
-            engine = InferenceEngine.from_checkpoint(checkpoint_path)
+            engine = InferenceEngine.from_checkpoint(
+                checkpoint_path,
+                tokenizer_path=tokenizer_path,
+            )
             logger.info("Model loaded successfully.")
         except Exception as e:
             logger.error(f"Failed to load model: {e}")

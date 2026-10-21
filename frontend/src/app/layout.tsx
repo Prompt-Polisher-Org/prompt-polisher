@@ -18,13 +18,13 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Prompt Polisher | AI Prompt Optimization",
+  title: "Prompt Polisher | A workspace for clearer prompts",
   description:
-    "Transform rough ideas into expertly crafted AI instructions. Prompt Polisher uses an RLHF-tuned language model to optimize your prompts for maximum performance.",
+    "Shape rough ideas into clearer AI prompts, keep conversations organized, and revisit your prompt work in one workspace.",
   keywords: ["AI prompts", "prompt engineering", "LLM", "RLHF", "prompt optimization"],
   openGraph: {
     title: "Prompt Polisher | AI Prompt Optimization",
-    description: "Transform rough ideas into expertly crafted AI instructions.",
+    description: "A workspace to refine, organize, and revisit AI prompts.",
     type: "website",
   },
 };

@@ -266,6 +266,21 @@ async def test_inference_generate_with_preferences_override(client: AsyncClient,
 
 
 @pytest.mark.asyncio
+async def test_inference_rejects_unknown_session_before_generation(client: AsyncClient, auth_tokens: dict):
+    """A session ID must belong to the signed-in user before it can be used."""
+    with patch("app.api.v1.inference.ai_client") as mock_ai:
+        mock_ai.generate_sync = AsyncMock()
+        response = await client.post(
+            "/api/v1/inference/generate",
+            json={"prompt": "test", "session_id": str(uuid.uuid4())},
+            headers=auth_header(auth_tokens),
+        )
+
+    assert response.status_code == 404
+    mock_ai.generate_sync.assert_not_awaited()
+
+
+@pytest.mark.asyncio
 async def test_inference_generate_ai_server_error(client: AsyncClient, auth_tokens: dict):
     """POST /api/v1/inference/generate — returns 500 when AI server fails."""
     with patch("app.api.v1.inference.ai_client") as mock_ai:

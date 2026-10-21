@@ -3,14 +3,15 @@ from typing import Optional, Dict, Any
 from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
-from redis.asyncio import Redis
-import asyncio
+from jose import JWTError
 
 from app.db.session import get_db
-from app.core.redis import get_redis
+from app.core.security import decode_token
 from app.dependencies import get_current_user
 from app.models.user import User
 from app.models.message import Message
+from app.services.auth_service import get_user_by_id
+from app.services.chat_service import get_session
 from app.services.ai_client import ai_client
 
 router = APIRouter()
@@ -32,6 +33,11 @@ async def generate_rest_fallback(
     db: AsyncSession = Depends(get_db)
 ):
     """REST fallback for prompt inference."""
+    if request.session_id:
+        session = await get_session(db, request.session_id, current_user.id)
+        if session is None:
+            raise HTTPException(status_code=404, detail="Chat session not found")
+
     try:
         # 1. Call AI inference server
         # For simplicity, we extract temperature from preferences override if present
@@ -65,6 +71,8 @@ async def generate_rest_fallback(
             latency_ms=latency_ms
         )
         
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -77,7 +85,9 @@ async def websocket_stream(
 ):
     """
     WebSocket endpoint for real-time prompt generation stream.
-    Auth via query param or first message (simplified for now: accepts connection).
+    Auth is provided in the first WebSocket message because browser WebSocket
+    clients cannot set an Authorization header. The session must belong to
+    the authenticated user before generation or persistence is allowed.
     """
     await websocket.accept()
     
@@ -87,10 +97,33 @@ async def websocket_stream(
         prompt = data.get("prompt")
         preferences = data.get("preferences_override", {})
         temperature = float(preferences.get("temperature", 0.7))
+        access_token = data.get("access_token")
         
         if not prompt:
             await websocket.send_json({"error": "No prompt provided"})
             await websocket.close(code=1003)
+            return
+
+        try:
+            payload = decode_token(access_token or "")
+            if payload.get("type") != "access" or not payload.get("sub"):
+                raise ValueError("Not an access token")
+            user_id = uuid.UUID(payload["sub"])
+        except (JWTError, TypeError, ValueError):
+            await websocket.send_json({"error": "Authentication required. Please sign in again."})
+            await websocket.close(code=4401)
+            return
+
+        user = await get_user_by_id(db, user_id)
+        if user is None or not user.is_active:
+            await websocket.send_json({"error": "Authentication required. Please sign in again."})
+            await websocket.close(code=4401)
+            return
+
+        session = await get_session(db, session_id, user.id)
+        if session is None:
+            await websocket.send_json({"error": "Chat session not found."})
+            await websocket.close(code=4404)
             return
 
         generated_prompt = ""

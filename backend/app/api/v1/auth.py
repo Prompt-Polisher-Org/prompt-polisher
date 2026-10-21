@@ -12,8 +12,10 @@ Task: Week 3-4 / Authentication System (task.md lines 131-147)
   [x] GET  /api/v1/auth/oauth/github/callback — handle GitHub callback
 """
 import logging
+import secrets
+from urllib.parse import urlencode
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -108,113 +110,159 @@ async def logout():
     return {"message": "Logged out successfully. Please discard your tokens."}
 
 
-# ── OAuth 2.0 — Google ────────────────────────────────────────────────────────
+# ── OAuth 2.0 — Google and GitHub ─────────────────────────────────────────────
+
+def _state_cookie_name(provider: str) -> str:
+    return f"prompt_polisher_oauth_{provider}_state"
+
+
+def _callback_path(provider: str) -> str:
+    return f"/api/v1/auth/oauth/{provider}/callback"
+
+
+def _start_oauth(
+    provider: str,
+    client_id: str,
+    client_secret: str,
+    auth_url_builder,
+) -> RedirectResponse:
+    if not client_id or not client_secret:
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail=f"{provider.title()} OAuth is not configured. Set its client ID and secret in the backend environment.",
+        )
+
+    state = secrets.token_urlsafe(32)
+    response = RedirectResponse(url=auth_url_builder(state), status_code=status.HTTP_302_FOUND)
+    response.set_cookie(
+        key=_state_cookie_name(provider),
+        value=state,
+        max_age=600,
+        httponly=True,
+        secure=settings.OAUTH_REDIRECT_BASE_URL.lower().startswith("https://"),
+        samesite="lax",
+        path=_callback_path(provider),
+    )
+    response.headers["Cache-Control"] = "no-store"
+    return response
+
+
+def _finish_oauth(
+    provider: str,
+    tokens: TokenResponse | None = None,
+    error: str | None = None,
+) -> RedirectResponse:
+    callback_url = f"{settings.FRONTEND_URL.rstrip('/')}/auth/callback"
+    if tokens:
+        fragment = urlencode({
+            "access_token": tokens.access_token,
+            "refresh_token": tokens.refresh_token,
+        })
+        destination = f"{callback_url}#{fragment}"
+    else:
+        destination = f"{callback_url}?error={error or 'oauth_failed'}"
+
+    response = RedirectResponse(url=destination, status_code=status.HTTP_302_FOUND)
+    response.delete_cookie(
+        key=_state_cookie_name(provider),
+        path=_callback_path(provider),
+        secure=settings.OAUTH_REDIRECT_BASE_URL.lower().startswith("https://"),
+        httponly=True,
+        samesite="lax",
+    )
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Referrer-Policy"] = "no-referrer"
+    return response
+
+
+def _state_is_valid(request: Request, provider: str, state: str | None) -> bool:
+    cookie_state = request.cookies.get(_state_cookie_name(provider))
+    return bool(cookie_state and state and secrets.compare_digest(cookie_state, state))
+
 
 @router.get("/oauth/google", summary="Redirect to Google OAuth consent screen")
 async def oauth_google_redirect():
-    """
-    Initiates the Google OAuth 2.0 flow.
-    Redirects the user's browser to Google's consent screen.
-    """
-    if not settings.GOOGLE_CLIENT_ID:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Google OAuth is not configured. Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env",
-        )
-    return RedirectResponse(url=get_google_auth_url())
+    return _start_oauth(
+        "google",
+        settings.GOOGLE_CLIENT_ID,
+        settings.GOOGLE_CLIENT_SECRET,
+        get_google_auth_url,
+    )
 
 
-@router.get("/oauth/google/callback", response_model=TokenResponse,
-            summary="Handle Google OAuth callback")
+@router.get("/oauth/google/callback", summary="Handle Google OAuth callback")
 async def oauth_google_callback(
-    code: str = Query(..., description="Authorization code from Google"),
+    request: Request,
+    code: str | None = Query(None, description="Authorization code from Google"),
+    state: str | None = Query(None),
+    error: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    Google redirects here after the user grants permission.
-    Exchanges the authorization code for user info, then creates or finds
-    the user and returns JWT tokens.
-    """
+    if not _state_is_valid(request, "google", state):
+        return _finish_oauth("google", error="oauth_state_mismatch")
+    if error or not code:
+        return _finish_oauth("google", error="google_sign_in_cancelled")
+
     try:
         google_user = await exchange_google_code(code)
-    except Exception as e:
-        logger.error(f"Google OAuth exchange failed: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to authenticate with Google: {e}",
+        if not google_user.get("email") or not google_user.get("email_verified"):
+            return _finish_oauth("google", error="google_email_not_verified")
+        user = await get_or_create_oauth_user(
+            db,
+            provider="google",
+            oauth_id=google_user["id"],
+            email=google_user["email"],
+            name=google_user.get("name"),
         )
-
-    if not google_user.get("email"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Could not retrieve email from Google account.",
+        tokens = TokenResponse(
+            access_token=create_access_token(user.id),
+            refresh_token=create_refresh_token(user.id),
         )
+        return _finish_oauth("google", tokens=tokens)
+    except Exception:
+        logger.exception("Google OAuth callback failed")
+        return _finish_oauth("google", error="google_sign_in_failed")
 
-    user = await get_or_create_oauth_user(
-        db,
-        provider="google",
-        oauth_id=google_user["id"],
-        email=google_user["email"],
-        name=google_user.get("name"),
-    )
-
-    return TokenResponse(
-        access_token=create_access_token(user.id),
-        refresh_token=create_refresh_token(user.id),
-    )
-
-
-# ── OAuth 2.0 — GitHub ────────────────────────────────────────────────────────
 
 @router.get("/oauth/github", summary="Redirect to GitHub OAuth consent screen")
 async def oauth_github_redirect():
-    """
-    Initiates the GitHub OAuth flow.
-    Redirects the user's browser to GitHub's authorization page.
-    """
-    if not settings.GITHUB_CLIENT_ID:
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="GitHub OAuth is not configured. Set GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET in .env",
-        )
-    return RedirectResponse(url=get_github_auth_url())
+    return _start_oauth(
+        "github",
+        settings.GITHUB_CLIENT_ID,
+        settings.GITHUB_CLIENT_SECRET,
+        get_github_auth_url,
+    )
 
 
-@router.get("/oauth/github/callback", response_model=TokenResponse,
-            summary="Handle GitHub OAuth callback")
+@router.get("/oauth/github/callback", summary="Handle GitHub OAuth callback")
 async def oauth_github_callback(
-    code: str = Query(..., description="Authorization code from GitHub"),
+    request: Request,
+    code: str | None = Query(None, description="Authorization code from GitHub"),
+    state: str | None = Query(None),
+    error: str | None = Query(None),
     db: AsyncSession = Depends(get_db),
 ):
-    """
-    GitHub redirects here after the user grants permission.
-    Exchanges the authorization code for user info, then creates or finds
-    the user and returns JWT tokens.
-    """
+    if not _state_is_valid(request, "github", state):
+        return _finish_oauth("github", error="oauth_state_mismatch")
+    if error or not code:
+        return _finish_oauth("github", error="github_sign_in_cancelled")
+
     try:
         github_user = await exchange_github_code(code)
-    except Exception as e:
-        logger.error(f"GitHub OAuth exchange failed: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Failed to authenticate with GitHub: {e}",
+        if not github_user.get("email") or not github_user.get("email_verified"):
+            return _finish_oauth("github", error="github_email_not_verified")
+        user = await get_or_create_oauth_user(
+            db,
+            provider="github",
+            oauth_id=github_user["id"],
+            email=github_user["email"],
+            name=github_user.get("name"),
         )
-
-    if not github_user.get("email"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Could not retrieve email from GitHub account. Ensure your email is public or grant the user:email scope.",
+        tokens = TokenResponse(
+            access_token=create_access_token(user.id),
+            refresh_token=create_refresh_token(user.id),
         )
-
-    user = await get_or_create_oauth_user(
-        db,
-        provider="github",
-        oauth_id=github_user["id"],
-        email=github_user["email"],
-        name=github_user.get("name"),
-    )
-
-    return TokenResponse(
-        access_token=create_access_token(user.id),
-        refresh_token=create_refresh_token(user.id),
-    )
+        return _finish_oauth("github", tokens=tokens)
+    except Exception:
+        logger.exception("GitHub OAuth callback failed")
+        return _finish_oauth("github", error="github_sign_in_failed")

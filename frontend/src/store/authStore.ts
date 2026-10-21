@@ -16,6 +16,7 @@ interface AuthState {
   // Actions
   login: (tokens: { access_token: string; refresh_token: string }, user?: User) => void;
   logout: () => Promise<void>;
+  initialize: () => Promise<void>;
   fetchCurrentUser: () => Promise<void>;
 }
 
@@ -52,6 +53,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         window.location.href = '/login';
       }
     }
+  },
+
+  initialize: async () => {
+    if (typeof window === 'undefined') return;
+    if (!localStorage.getItem('access_token')) {
+      set({ user: null, isAuthenticated: false, isLoading: false });
+      return;
+    }
+    await get().fetchCurrentUser();
   },
 
   fetchCurrentUser: async () => {
