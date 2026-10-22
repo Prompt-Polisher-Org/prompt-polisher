@@ -391,7 +391,7 @@ def create_model(config: Optional[ModelConfig] = None) -> PromptPolisherTransfor
 
     model = PromptPolisherTransformer(config)
     param_count = model.count_parameters()
-    print(f"🧠 Created PromptPolisherTransformer")
+    print(f"[MODEL] Created PromptPolisherTransformer")
     print(f"   Layers: {config.num_layers} | Hidden: {config.hidden_dim} | Heads: {config.num_heads}")
     print(f"   Parameters: {param_count:,} ({param_count/1e6:.1f}M)")
     return model
@@ -407,7 +407,7 @@ if __name__ == "__main__":
     # Test forward pass
     dummy_input = torch.randint(0, config.vocab_size, (2, 64))
     output = model(dummy_input, labels=dummy_input)
-    print(f"\n✅ Forward pass OK")
+    print(f"\n[OK] Forward pass OK")
     print(f"   Input shape:  {dummy_input.shape}")
     print(f"   Logits shape: {output['logits'].shape}")
     print(f"   Loss: {output['loss'].item():.4f}")
@@ -415,6 +415,6 @@ if __name__ == "__main__":
     # Test generation
     prompt = torch.randint(0, config.vocab_size, (1, 10))
     generated = model.generate(prompt, max_new_tokens=20)
-    print(f"\n✅ Generation OK")
+    print(f"\n[OK] Generation OK")
     print(f"   Prompt length: 10")
     print(f"   Generated length: {generated.shape[1]}")
