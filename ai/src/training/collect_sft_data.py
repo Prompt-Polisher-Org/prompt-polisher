@@ -2,13 +2,14 @@
 collect_sft_data.py -- Collect and curate SFT dataset for prompt optimization.
 
 Produces high-quality (bad_prompt -> optimized_prompt) pairs from:
-  1. Local MATH dataset (FY_dataset/train.csv) -- LaTeX math prompt polishing
-  2. Dolly-15k (HuggingFace) -- general instruction polishing
-  3. Alpaca (HuggingFace) -- diverse instruction polishing
-  4. CodeAlpaca-20k (HuggingFace) -- code prompt polishing
+  1. Prompt_Preference_Dataset (HuggingFace, 30K) -- GPT-4 prompt rewrites (PRIMARY)
+  2. Local MATH dataset (FY_dataset/train.csv) -- LaTeX math prompt polishing
+  3. Dolly-15k (HuggingFace) -- general instruction polishing (template-based)
+  4. CodeAlpaca-20k (HuggingFace) -- code prompt polishing (template-based)
 
-Each source uses category-aware, diverse templates so the model learns
-real optimization patterns instead of memorizing fixed boilerplate.
+The primary dataset contains real prompt rewrites by GPT-4 where prompts are
+completely restructured with role assignments, formatting, and detail guidance.
+Template-based sources supplement with domain-specific coverage.
 
 Usage:
     python -m ai.src.training.collect_sft_data
@@ -34,7 +35,7 @@ SPLITS_DIR = OUTPUT_DIR / "splits"
 
 MATH_CSV = PROJECT_ROOT / "FY_dataset" / "train.csv" / "train.csv"
 
-TARGET_MAX = 12_000
+TARGET_MAX = 25_000
 SEED = 42
 
 random.seed(SEED)
@@ -474,7 +475,36 @@ def _detect_category(text: str) -> str:
     return best if scores[best] > 0 else "general"
 
 
-# -- Data sources ------------------------------------------------------------
+# -- Primary data source: real GPT-4 prompt rewrites -------------------------
+
+def collect_from_prompt_preference() -> list[dict]:
+    """Load real prompt rewrites from the Prompt Preference Dataset (30K pairs)."""
+    print("[HF] Loading Junrulu/Prompt_Preference_Dataset...")
+    try:
+        ds = load_dataset("Junrulu/Prompt_Preference_Dataset", split="train")
+    except Exception as e:
+        print(f"   [WARN] Failed: {e}")
+        return []
+
+    pairs = []
+    for example in tqdm(ds, desc="   Processing PromptPreference", leave=False):
+        raw = example.get("raw_prompt", "").strip()
+        optimized = example.get("gpt4_optimized_prompt", "").strip()
+
+        if not raw or not optimized:
+            continue
+        if len(raw) < 8 or len(optimized) < 20:
+            continue
+        if len(optimized) <= len(raw):
+            continue
+
+        pairs.append({"input": raw, "output": optimized})
+
+    print(f"   [OK] Extracted {len(pairs)} pairs from Prompt Preference Dataset")
+    return pairs
+
+
+# -- Template-based data sources ---------------------------------------------
 
 def collect_from_dolly() -> list[dict]:
     print("[HF] Loading databricks/databricks-dolly-15k...")
@@ -577,17 +607,19 @@ def collect_all():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     print("=" * 70)
-    print("[SFT] Prompt Polisher -- SFT Data Collection (v2 - diverse templates)")
+    print("[SFT] Prompt Polisher -- SFT Data Collection (v3 - real rewrites)")
     print("=" * 70)
 
     all_pairs = []
 
-    # 1. MATH dataset (local) -- the star of the show
+    # 1. PRIMARY: Real GPT-4 prompt rewrites (highest quality)
+    all_pairs.extend(collect_from_prompt_preference())
+
+    # 2. MATH dataset (local) -- LaTeX optimization
     all_pairs.extend(collect_from_math())
 
-    # 2. HuggingFace datasets
+    # 3. Supplementary template-based sources
     all_pairs.extend(collect_from_dolly())
-    all_pairs.extend(collect_from_alpaca())
     all_pairs.extend(collect_from_code_alpaca())
 
     print(f"\n[STATS] Total collected: {len(all_pairs)} pairs")

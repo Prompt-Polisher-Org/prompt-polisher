@@ -129,6 +129,7 @@ class InferenceEngine:
         self.bos_id = tokenizer.bos_id()
         self.eos_id = tokenizer.eos_id()
         self.pad_id = tokenizer.pad_id()
+        self._eos_text_ids = tokenizer.encode("<eos>", out_type=int)
 
     # ── Construction ──────────────────────────────────────────────────────
 
@@ -256,6 +257,10 @@ class InferenceEngine:
             input_ids = torch.cat([input_ids, next_token], dim=1)
             yield token_id
 
+            eos_len = len(self._eos_text_ids)
+            if len(generated) >= eos_len and generated[-eos_len:] == self._eos_text_ids:
+                break
+
     # ── Public API ────────────────────────────────────────────────────────
 
     def generate(
@@ -278,8 +283,14 @@ class InferenceEngine:
         token_ids = list(self._sample_ids(input_ids, gen_config))
         latency_ms = (time.perf_counter() - start) * 1000.0
 
+        text = self.tokenizer.decode(token_ids).strip()
+        for marker in ("<eos>", "< eos>", "<eos >", "< eos >"):
+            if marker in text:
+                text = text[:text.index(marker)].strip()
+                break
+
         return {
-            "generated_text": self.tokenizer.decode(token_ids).strip(),
+            "generated_text": text,
             "token_count": len(token_ids),
             "latency_ms": latency_ms,
         }
@@ -296,19 +307,40 @@ class InferenceEngine:
         SentencePiece pieces are sub-word, so we decode the running prefix
         and yield only the delta. That keeps multi-byte characters and
         word-boundary markers intact instead of emitting mojibake.
+
+        Buffers the last few characters to avoid partially yielding the
+        ``<eos>`` marker before it can be detected.
         """
         gen_config = self._resolve_config(gen_config, overrides)
 
         input_ids = self._encode_prompt(prompt)
         token_ids: list[int] = []
-        decoded_so_far = ""
+        emitted_len = 0
+        eos_marker = "<eos>"
+        buf_size = len(eos_marker) - 1
 
         for token_id in self._sample_ids(input_ids, gen_config):
             token_ids.append(token_id)
             decoded = self.tokenizer.decode(token_ids)
-            delta, decoded_so_far = decoded[len(decoded_so_far):], decoded
-            if delta:
-                yield delta
+
+            if eos_marker in decoded:
+                cut = decoded.index(eos_marker)
+                remaining = decoded[emitted_len:cut]
+                if remaining:
+                    yield remaining
+                return
+
+            safe_end = max(emitted_len, len(decoded) - buf_size)
+            chunk = decoded[emitted_len:safe_end]
+            if chunk:
+                yield chunk
+                emitted_len = safe_end
+
+        if token_ids:
+            decoded = self.tokenizer.decode(token_ids)
+            leftover = decoded[emitted_len:]
+            if leftover:
+                yield leftover
 
     def get_model_info(self) -> dict:
         """Describe the loaded model — surfaced by the server's /health endpoint."""
