@@ -93,7 +93,7 @@ def save_checkpoint(model, optimizer, scheduler, scaler, config, step, loss, pat
         "loss": loss,
     }
     torch.save(checkpoint, path)
-    print(f"   💾 Checkpoint saved: {path} (step={step}, loss={loss:.4f})")
+    print(f"   [SAVE] Checkpoint saved: {path} (step={step}, loss={loss:.4f})")
 
 
 def load_checkpoint(path, model, optimizer=None, scheduler=None, scaler=None):
@@ -108,7 +108,7 @@ def load_checkpoint(path, model, optimizer=None, scheduler=None, scaler=None):
     if scaler and checkpoint.get("scaler_state_dict"):
         scaler.load_state_dict(checkpoint["scaler_state_dict"])
 
-    print(f"   📂 Checkpoint loaded: {path} (step={checkpoint['step']}, loss={checkpoint['loss']:.4f})")
+    print(f"   [LOAD] Checkpoint loaded: {path} (step={checkpoint['step']}, loss={checkpoint['loss']:.4f})")
     return checkpoint["step"]
 
 
@@ -143,10 +143,10 @@ def train(config: ModelConfig, resume_path: str = None):
     # ── Setup device ──────────────────────────────────────────────────────
     if torch.cuda.is_available():
         device = torch.device("cuda")
-        print(f"🖥️  Using GPU: {torch.cuda.get_device_name()}")
+        print(f"[GPU] Using GPU: {torch.cuda.get_device_name()}")
     else:
         device = torch.device("cpu")
-        print(f"🖥️  Using CPU (training will be slow)")
+        print(f"[CPU] Using CPU (training will be slow)")
 
     print(f"\n{config}\n")
 
@@ -159,7 +159,7 @@ def train(config: ModelConfig, resume_path: str = None):
     val_data_path = Path(config.data_dir) / "sft" / "splits" / "val.jsonl"
 
     if not train_data_path.exists():
-        print(f"❌ Training data not found: {train_data_path}")
+        print(f"[ERROR] Training data not found: {train_data_path}")
         print(f"   Run 'python ai/src/training/collect_sft_data.py' first.")
         sys.exit(1)
 
@@ -209,7 +209,7 @@ def train(config: ModelConfig, resume_path: str = None):
     # ── TensorBoard Logging ───────────────────────────────────────────────
     log_dir = Path(config.checkpoint_dir) / "logs"
     writer = SummaryWriter(log_dir=str(log_dir))
-    print(f"📊 TensorBoard logs: {log_dir}")
+    print(f"[TB] TensorBoard logs: {log_dir}")
     print(f"   Run: tensorboard --logdir {log_dir}")
 
     # ── Resume from checkpoint ────────────────────────────────────────────
@@ -231,7 +231,7 @@ def train(config: ModelConfig, resume_path: str = None):
     tokens_processed = 0
 
     print("\n" + "=" * 70)
-    print("🚀 Starting training...")
+    print("[START] Starting training...")
     print("=" * 70)
     start_time = time.time()
 
@@ -297,7 +297,7 @@ def train(config: ModelConfig, resume_path: str = None):
             # ── Validation ────────────────────────────────────────────────
             if val_loader and global_step % config.eval_every_n_steps == 0:
                 val_loss = validate(model, val_loader, device, dtype_ctx)
-                print(f"   📊 Validation loss: {val_loss:.4f}")
+                print(f"   [VAL] Validation loss: {val_loss:.4f}")
                 writer.add_scalar("val/loss", val_loss, global_step)
 
                 # Save best model
@@ -326,7 +326,7 @@ def train(config: ModelConfig, resume_path: str = None):
 
     total_time = time.time() - start_time
     print("\n" + "=" * 70)
-    print("✅ Training complete!")
+    print("[DONE] Training complete!")
     print(f"   Total steps: {global_step}")
     print(f"   Best val loss: {best_val_loss:.4f}")
     print(f"   Total time: {total_time / 3600:.1f} hours")

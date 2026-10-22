@@ -33,25 +33,25 @@ async def lifespan(app: FastAPI):
         redis_url = os.getenv("REDIS_URL", "redis://localhost:6379")
         app.state.redis = aioredis.from_url(redis_url, decode_responses=True)
         await app.state.redis.ping()
-        print("✅ Redis connected — rate limiting active")
+        print("[OK] Redis connected -- rate limiting active")
     except Exception as e:
-        print(f"⚠️  Redis unavailable ({e}) — rate limiting disabled")
+        print(f"[WARN] Redis unavailable ({e}) -- rate limiting disabled")
         app.state.redis = None
 
     # ── Qdrant collections bootstrap (Week 7-8) ───────────────────────────
     try:
         from app.services.qdrant_service import qdrant_service
         qdrant_service.ensure_collections_exist()
-        print("✅ Qdrant collections ready")
+        print("[OK] Qdrant collections ready")
     except Exception as e:
-        print(f"⚠️  Qdrant unavailable ({e}) — RAG features disabled")
+        print(f"[WARN] Qdrant unavailable ({e}) -- RAG features disabled")
 
     # ── Cache service bootstrap (Week 11-12) ───────────────────────────────
     try:
         from app.services.cache_service import cache_service
         await cache_service.connect()
     except Exception as e:
-        print(f"⚠️  Cache service unavailable ({e}) — response caching disabled")
+        print(f"[WARN] Cache service unavailable ({e}) -- response caching disabled")
 
     # ── Register signal handlers for graceful shutdown ─────────────────────
     shutdown_event = asyncio.Event()
@@ -67,7 +67,7 @@ async def lifespan(app: FastAPI):
             # Can't set signal handlers in non-main thread
             pass
 
-    print("✅ Graceful shutdown handlers registered")
+    print("[OK] Graceful shutdown handlers registered")
 
     yield
 
@@ -78,7 +78,7 @@ async def lifespan(app: FastAPI):
     if getattr(app.state, "redis", None) and app.state.redis:
         try:
             await app.state.redis.aclose()
-            logger.info("✅ Redis connection closed")
+            logger.info("Redis connection closed")
         except Exception as e:
             logger.warning(f"Error closing Redis: {e}")
 
@@ -86,7 +86,7 @@ async def lifespan(app: FastAPI):
     try:
         from app.services.cache_service import cache_service
         await cache_service.close()
-        logger.info("✅ Cache service closed")
+        logger.info("Cache service closed")
     except Exception as e:
         logger.warning(f"Error closing cache service: {e}")
 
@@ -94,7 +94,7 @@ async def lifespan(app: FastAPI):
     try:
         from app.services.ai_client import ai_client
         await ai_client.close()
-        logger.info("✅ AI client closed")
+        logger.info("AI client closed")
     except Exception as e:
         logger.warning(f"Error closing AI client: {e}")
 
@@ -102,11 +102,11 @@ async def lifespan(app: FastAPI):
     try:
         from app.db.session import engine
         await engine.dispose()
-        logger.info("✅ Database engine disposed")
+        logger.info("Database engine disposed")
     except Exception as e:
         logger.warning(f"Error disposing DB engine: {e}")
 
-    logger.info("🛑 Graceful shutdown complete")
+    logger.info("Graceful shutdown complete")
 
 
 
