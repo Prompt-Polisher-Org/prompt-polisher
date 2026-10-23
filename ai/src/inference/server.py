@@ -141,6 +141,28 @@ def _polish_prompt(raw: str) -> str:
     )
 
 
+def _is_low_quality(generated: str, original: str) -> bool:
+    """Detect when the model produced garbage output."""
+    if not generated or len(generated.strip()) < 10:
+        return True
+    words = generated.split()
+    if len(words) >= 4:
+        unique_ratio = len(set(words)) / len(words)
+        if unique_ratio < 0.3:
+            return True
+    if generated.strip().lower() == original.strip().lower():
+        return True
+    orig_words = original.lower().split()
+    gen_words = [w.lower() for w in words]
+    check_len = min(len(orig_words), len(gen_words), 8)
+    if check_len >= 3:
+        matches = sum(1 for i in range(check_len) if orig_words[i] == gen_words[i])
+        mismatches = check_len - matches
+        if matches >= check_len * 0.5 and mismatches >= 1:
+            return True
+    return False
+
+
 # ── Pydantic Models ───────────────────────────────────────────────────────────
 
 class GenerateRequest(BaseModel):
@@ -237,6 +259,12 @@ async def generate_sync(req: GenerateRequest):
 
     try:
         result = engine.generate(req.prompt, gen_config=config)
+        text = result["generated_text"]
+        if _is_low_quality(text, req.prompt):
+            logger.info("Model output low quality, falling back to rule-based")
+            text = _polish_prompt(req.prompt)
+            result["generated_text"] = text
+            result["token_count"] = len(text.split())
         return GenerateResponse(**result)
     except Exception as e:
         logger.error(f"Generation failed: {e}")
@@ -272,10 +300,19 @@ async def generate_stream(req: GenerateRequest):
 
     async def event_generator():
         try:
+            collected = []
             for token_text in engine.stream(req.prompt, gen_config=config):
+                collected.append(token_text)
                 safe_text = token_text.replace('\n', '\\n')
                 yield f"data: {safe_text}\n\n"
                 await asyncio.sleep(0.001)
+
+            full_text = "".join(collected)
+            if _is_low_quality(full_text, req.prompt):
+                logger.info("Streaming output low quality, sending rule-based correction")
+                polished = _polish_prompt(req.prompt)
+                safe_polished = polished.replace('\n', '\\n')
+                yield f"data: \\n\\n---\\n\\n{safe_polished}\n\n"
 
             yield "data: [DONE]\n\n"
         except Exception as e:
