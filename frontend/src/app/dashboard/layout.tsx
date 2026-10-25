@@ -9,7 +9,6 @@ import {
   Settings, 
   BarChart2, 
   Menu, 
-  X, 
   LogOut, 
   Wand2, 
   ChevronDown,
@@ -171,7 +170,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </header>
 
-        <div className={styles.contentArea}>
+        <div className={`${styles.contentArea} ${pathname === '/dashboard' ? styles.chatContentArea : ''}`}>
           <PageTransition pathname={pathname}>
             {children}
           </PageTransition>

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { ChatInterface } from '@/components/chat/ChatInterface';
 import { SessionSidebar } from '@/components/chat/SessionSidebar';
 import { api } from '@/lib/api';
+import styles from './ChatWorkspace.module.scss';
 
 interface ChatSession {
   id: string;
@@ -74,8 +75,8 @@ export default function DashboardPage() {
   }));
 
   return (
-    <div className="flex h-[calc(100vh-64px)] w-full">
-      <div className="hidden md:block h-full">
+    <div className={styles.workspace}>
+      <div className={styles.historyRail}>
         <SessionSidebar
           sessions={mappedSessions}
           onNewChat={handleNewChat}
@@ -84,16 +85,16 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="relative flex-1 bg-slate-900/50 h-full min-w-0">
+      <div className={styles.conversation}>
         <button
           type="button"
           onClick={handleNewChat}
-          className="absolute right-3 top-3 z-20 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 shadow md:hidden"
+          className={styles.mobileNewChat}
         >
           New chat
         </button>
         {sessionsError && (
-          <p className="px-4 pt-3 text-sm text-red-500" role="status">
+          <p className={styles.sessionsError} role="status">
             {sessionsError}
           </p>
         )}

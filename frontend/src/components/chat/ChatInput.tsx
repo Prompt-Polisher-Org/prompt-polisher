@@ -9,6 +9,7 @@
 
 import { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import { Send, Sparkles } from 'lucide-react';
+import styles from './ChatInput.module.scss';
 
 interface ChatInputProps {
   onSendMessage: (content: string) => void;
@@ -73,7 +74,7 @@ export function ChatInput({
   };
 
   return (
-    <div className="relative group flex items-end bg-slate-800/80 border border-slate-700/80 focus-within:border-indigo-500/50 rounded-2xl backdrop-blur-xl shadow-lg transition-colors duration-200 p-2 pl-4">
+    <div className={styles.composer}>
       <textarea
         ref={textareaRef}
         value={input}
@@ -82,18 +83,17 @@ export function ChatInput({
         placeholder={placeholder}
         disabled={isGenerating}
         rows={1}
-        className="flex-grow bg-transparent text-slate-200 placeholder-slate-500 focus:outline-none resize-none py-3 max-h-[150px] overflow-y-auto scrollbar-hide text-[15px] leading-relaxed disabled:opacity-50"
+        className={styles.textarea}
+        aria-label="Write a prompt"
       />
 
-      <div className="flex flex-col justify-end ml-2 pb-1 shrink-0">
+      <div className={styles.sendArea}>
         <button
           onClick={handleSend}
           disabled={!input.trim() || isGenerating}
-          className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 ${
-            input.trim() && !isGenerating
-              ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 hover:scale-105'
-              : 'bg-slate-700/50 text-slate-500 cursor-not-allowed'
-          }`}
+          type="button"
+          aria-label={isGenerating ? 'Generating prompt' : 'Send prompt'}
+          className={`${styles.sendButton} ${input.trim() && !isGenerating ? styles.sendEnabled : ''}`}
         >
           {isGenerating ? (
             <Sparkles size={18} className="animate-pulse text-indigo-300" />
@@ -104,19 +104,19 @@ export function ChatInput({
       </div>
 
       {/* Hint bar */}
-      <div className="absolute -bottom-6 right-2 text-xs text-slate-500">
-        <span className="hidden sm:inline">
+      <div className={styles.hint}>
+        <span className={styles.keyboardHint}>
           Press{' '}
-          <kbd className="font-sans px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px]">
+          <kbd>
             Enter
           </kbd>{' '}
           to send,{' '}
-          <kbd className="font-sans px-1.5 py-0.5 rounded bg-slate-800 border border-slate-700 text-[10px]">
+          <kbd>
             Shift + Enter
           </kbd>{' '}
           for new line.
         </span>
-        <span className="ml-3 font-mono">{input.length}</span>
+        <span className={styles.charCount}>{input.length} characters</span>
       </div>
     </div>
   );

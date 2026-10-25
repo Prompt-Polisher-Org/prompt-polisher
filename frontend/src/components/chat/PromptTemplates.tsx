@@ -13,6 +13,7 @@ import { motion } from 'framer-motion';
 import {
   Code2, PenLine, Megaphone, GraduationCap, Lightbulb, FlaskConical,
 } from 'lucide-react';
+import styles from './PromptTemplates.module.scss';
 
 export interface PromptTemplate {
   id: string;
@@ -240,18 +241,14 @@ export function PromptTemplates({ onSelectTemplate }: PromptTemplatesProps) {
     : TEMPLATES.filter(t => t.domain === activeFilter);
 
   return (
-    <div className="w-full">
+    <div className={styles.templates}>
       {/* Domain filter tabs */}
-      <div className="flex flex-wrap gap-2 mb-5">
+      <div className={styles.filters}>
         {domains.map(domain => (
           <button
             key={domain}
             onClick={() => setActiveFilter(domain)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border ${
-              activeFilter === domain
-                ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/20'
-                : 'bg-slate-800/60 text-slate-400 border-slate-700/50 hover:text-white hover:bg-slate-800'
-            }`}
+            className={`${styles.filterButton} ${activeFilter === domain ? styles.filterActive : ''}`}
           >
             {domain === 'all' ? 'All Templates' : DOMAIN_LABELS[domain]}
           </button>
@@ -259,7 +256,7 @@ export function PromptTemplates({ onSelectTemplate }: PromptTemplatesProps) {
       </div>
 
       {/* Template cards grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className={styles.grid}>
         {filtered.map((template, i) => (
           <motion.button
             key={template.id}
@@ -267,34 +264,31 @@ export function PromptTemplates({ onSelectTemplate }: PromptTemplatesProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.04 }}
             onClick={() => onSelectTemplate(template.prompt)}
-            className={`group relative text-left p-4 rounded-xl border border-slate-700/50
-                        bg-gradient-to-br ${template.gradient} bg-slate-800/60
-                        hover:border-slate-600 hover:scale-[1.02] hover:shadow-lg hover:shadow-slate-900/40
-                        transition-all duration-200 cursor-pointer`}
+            className={`${styles.card} ${styles[template.domain]}`}
           >
             {/* Icon + Domain badge */}
-            <div className="flex items-center justify-between mb-2.5">
-              <span className="text-indigo-400 group-hover:text-indigo-300 transition-colors">
+            <div className={styles.cardTop}>
+              <span className={styles.cardIcon}>
                 {template.icon}
               </span>
-              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
+              <span className={styles.cardDomain}>
                 {DOMAIN_LABELS[template.domain]}
               </span>
             </div>
 
             {/* Title */}
-            <h3 className="text-sm font-semibold text-slate-200 mb-1 group-hover:text-white transition-colors">
+            <h3 className={styles.cardTitle}>
               {template.title}
             </h3>
 
             {/* Description */}
-            <p className="text-xs text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors">
+            <p className={styles.cardDescription}>
               {template.description}
             </p>
 
             {/* Hover CTA */}
-            <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-[10px] text-indigo-400 font-medium">Use template →</span>
+            <div className={styles.cardAction}>
+              <span>Use template <span aria-hidden="true">→</span></span>
             </div>
           </motion.button>
         ))}
