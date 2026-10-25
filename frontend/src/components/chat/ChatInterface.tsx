@@ -16,6 +16,7 @@ import { MessageBubble } from './MessageBubble';
 import type { Message } from './MessageBubble';
 import { PromptTemplates } from './PromptTemplates';
 import { api } from '@/lib/api';
+import styles from './ChatInterface.module.scss';
 
 const uuidv4 = () => crypto.randomUUID();
 
@@ -269,34 +270,37 @@ export function ChatInterface({ sessionId, resetKey, onSessionCreated }: ChatInt
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-60px)] md:h-[calc(100vh-80px)] max-w-4xl mx-auto w-full relative">
+    <div className={styles.chatRoot}>
 
       {/* Message / Template area */}
-      <div className="flex-1 overflow-y-auto px-3 md:px-4 py-4 md:py-6 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+      <div className={styles.scrollArea}>
         {chatError && (
-          <p className="mb-4 text-center text-sm text-red-500" role="alert">
+          <p className={styles.chatError} role="alert">
             {chatError}
           </p>
         )}
         {messages.length === 0 ? (
           /* ── Empty state: show template quick-starts ── */
-          <div className="flex flex-col h-full">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-slate-800/50 rounded-full flex items-center justify-center border border-slate-700/50 shadow-inner mb-4 mx-auto">
-                <span className="text-3xl">✨</span>
+          <div className={styles.emptyState}>
+            <div className={styles.emptyHeader}>
+              <div className={styles.emptyIcon} aria-hidden="true">
+                <span>✦</span>
               </div>
-              <h2 className="text-xl font-semibold text-slate-200 mb-2">
+              <span className={styles.emptyEyebrow}>PROMPT STUDIO</span>
+              <h2 className={styles.emptyTitle}>
                 What would you like to polish?
               </h2>
-              <p className="text-sm text-slate-400 max-w-sm mx-auto">
+              <p className={styles.emptyDescription}>
                 Start with a template below or type your own prompt.
               </p>
             </div>
 
-            <PromptTemplates onSelectTemplate={(t) => setPendingTemplate(t)} />
+            <div className={styles.templates}>
+              <PromptTemplates onSelectTemplate={(t) => setPendingTemplate(t)} />
+            </div>
           </div>
         ) : (
-          <div className="flex flex-col pb-4">
+          <div className={styles.messageList}>
             {messages.map(msg => (
               <MessageBubble
                 key={msg.id}
@@ -310,8 +314,8 @@ export function ChatInterface({ sessionId, resetKey, onSessionCreated }: ChatInt
       </div>
 
       {/* Input area */}
-      <div className="p-4 bg-slate-900/50 backdrop-blur-sm border-t border-slate-800/50 z-10">
-        <div className="max-w-3xl mx-auto">
+      <div className={styles.composerDock}>
+        <div className={styles.composerInner}>
           <ChatInput
             key={sessionId ?? `new-${resetKey}`}
             onSendMessage={handleSendMessage}

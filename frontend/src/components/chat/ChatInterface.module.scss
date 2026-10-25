@@ -1,0 +1,114 @@
+.chatRoot {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.scrollArea {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1rem, 4vw, 3rem) 1.5rem;
+  scrollbar-color: rgba(132, 122, 178, 0.35) transparent;
+  scrollbar-width: thin;
+}
+
+.chatError {
+  width: fit-content;
+  max-width: min(640px, 100%);
+  margin: 0 auto 1.25rem;
+  padding: 0.75rem 1rem;
+  color: #fecaca;
+  border: 1px solid rgba(239, 68, 68, 0.28);
+  border-radius: 11px;
+  background: rgba(127, 29, 29, 0.2);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.emptyState {
+  width: min(100%, 920px);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 auto;
+  padding: 0.5rem 0 1.5rem;
+}
+
+.emptyHeader { margin: 0 auto 2rem; text-align: center; }
+
+.emptyIcon {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 1rem;
+  color: #d5ceff;
+  border: 1px solid rgba(169, 156, 255, 0.26);
+  border-radius: 17px;
+  background: linear-gradient(145deg, rgba(142, 123, 255, 0.23), rgba(84, 73, 200, 0.14));
+  box-shadow: 0 10px 35px rgba(91, 77, 197, 0.16);
+  font-size: 1.7rem;
+}
+
+.emptyEyebrow {
+  display: block;
+  margin-bottom: 0.55rem;
+  color: #a99cff;
+  font-size: 0.62rem;
+  font-weight: 740;
+  letter-spacing: 0.16em;
+}
+
+.emptyTitle {
+  margin: 0;
+  color: var(--color-text-primary);
+  font-size: clamp(1.55rem, 3vw, 2.1rem);
+  font-weight: 690;
+  letter-spacing: -0.055em;
+  line-height: 1.15;
+}
+
+.emptyDescription {
+  max-width: 420px;
+  margin: 0.65rem auto 0;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+
+.templates { width: 100%; }
+
+.messageList {
+  width: min(100%, 880px);
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  padding-bottom: 0.75rem;
+}
+
+.composerDock {
+  position: relative;
+  z-index: 10;
+  padding: 1rem clamp(1rem, 4vw, 3rem) 1.15rem;
+  border-top: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-bg-base) 88%, transparent);
+  backdrop-filter: blur(18px);
+}
+
+.composerInner { width: min(100%, 820px); margin: 0 auto; }
+
+@media (max-width: 767px) {
+  .scrollArea { padding: 4rem 0.85rem 1rem; }
+  .emptyState { justify-content: flex-start; padding-top: 1.35rem; }
+  .emptyHeader { margin-bottom: 1.35rem; }
+  .emptyDescription { max-width: 310px; font-size: 0.82rem; }
+  .composerDock { padding: 0.8rem 0.75rem 1rem; }
+}
+
+html[data-theme='light'] .composerDock { background: rgba(248, 249, 253, 0.9); }

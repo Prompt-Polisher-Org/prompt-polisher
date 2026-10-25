@@ -114,6 +114,20 @@
   --z-toast: 2000;
 }
 
+html[data-theme="light"] {
+  --color-bg-base: #f7f8fc;
+  --color-bg-surface: #ffffff;
+  --color-bg-surface-elevated: #f0f2f8;
+  --color-primary: #6252d8;
+  --color-primary-hover: #7869ed;
+  --color-primary-transparent: rgba(99, 102, 241, 0.12);
+  --color-text-primary: #1b2031;
+  --color-text-secondary: #59647a;
+  --color-text-muted: #78839a;
+  --color-border: rgba(35, 43, 66, 0.13);
+  --color-border-glow: rgba(99, 102, 241, 0.32);
+}
+
 /* ─── Base Reset & Theme Application ───────────────────────────────────────── */
 body {
   background-color: var(--color-bg-base);
